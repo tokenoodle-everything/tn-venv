@@ -20,7 +20,7 @@ from pathlib import Path
 
 from ..create.context import CreatorContext
 from ..errors import SeedError
-from ..report import Reporter, SILENT
+from ..report import Reporter
 from ..util.process import clean_pip_env, run_cmd
 
 
