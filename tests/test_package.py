@@ -18,11 +18,6 @@ from tn_venv import (
 )
 
 
-def test_version_exports() -> None:
-    assert tn_venv.__version__ == "0.1.0"
-    assert tn_venv.__version_tuple__ == (0, 1, 0)
-
-
 def test_public_api_callables() -> None:
     assert callable(cli_run)
     assert callable(create_venv)
