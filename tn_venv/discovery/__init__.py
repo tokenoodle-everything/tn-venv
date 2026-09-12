@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 from pathlib import Path
 
 from ..errors import DiscoverError, InterpreterNotFoundError

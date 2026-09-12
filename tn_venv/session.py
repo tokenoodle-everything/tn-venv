@@ -12,7 +12,6 @@ Both the CLI (:func:`tn_venv.cli.cli_run`) and the Python API
 from __future__ import annotations
 
 import os
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 

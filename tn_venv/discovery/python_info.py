@@ -7,7 +7,7 @@ import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import total_ordering
 from pathlib import Path
 
