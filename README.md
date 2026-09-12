@@ -1,4 +1,4 @@
-# tn-venv
+# TnVenv
 
 > Create a Python virtual environment — **batteries included**.
 
