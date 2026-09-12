@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tn-venv"
+version = "0.1.0"
+description = "Create Python virtual environments with one command — a batteries-included virtualenv alternative"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "License.txt" }
+authors = [{ name = "Tokenoodle-Everything Organization" }]
+keywords = ["virtualenv", "venv", "environment", "isolation", "packaging"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/tokenoodle-everything/tn-venv"
+Documentation = "https://github.com/tokenoodle-everything/tn-venv#readme"
+Source = "https://github.com/tokenoodle-everything/tn-venv"
+
+[project.scripts]
+tn-venv = "tn_venv.cli:main"
+tn_venv = "tn_venv.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tn_venv*"]
+
+[tool.setuptools.package-data]
+tn_venv = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+# tn-venv reads this very section for its own defaults when you run it here:
+[tool.tn-venv]
+# prompt = "my-project"
+# python = ["3.12"]
