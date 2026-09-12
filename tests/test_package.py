@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 import tn_venv
 from tn_venv import (
     ActivateError,
