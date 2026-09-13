@@ -33,9 +33,7 @@ def test_candidate_is_named_tuple() -> None:
 def test_path_pythons_finds_python3(monkeypatch: pytest.MonkeyPatch) -> None:
     name = "python3.exe" if sys.platform == "win32" else "python3"
     fake = "/fake/" + name
-    monkeypatch.setattr(
-        "shutil.which", lambda n: fake if n == name else None
-    )
+    monkeypatch.setattr("shutil.which", lambda n: fake if n == name else None)
     found = list(path_pythons())
     assert any(c.executable == fake for c in found)
 
@@ -63,9 +61,7 @@ def test_path_pythons_deduplicates(monkeypatch: pytest.MonkeyPatch) -> None:
         aliases = {"python.exe", "python3.exe"}
     else:
         aliases = {"python3", "python"}
-    monkeypatch.setattr(
-        "shutil.which", lambda name: fake if name in aliases else None
-    )
+    monkeypatch.setattr("shutil.which", lambda name: fake if name in aliases else None)
     seen_sources = [c.executable for c in path_pythons()]
     assert seen_sources.count(fake) == 1
 
