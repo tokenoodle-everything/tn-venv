@@ -29,7 +29,7 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/tokenoodle-everything/tn-venv"
-Documentation = "https://github.com/tokenoodle-everything/tn-venv#readme"
+Documentation = "http://tn-venv.tokenoodle.com/"
 Source = "https://github.com/tokenoodle-everything/tn-venv"
 
 [project.scripts]
