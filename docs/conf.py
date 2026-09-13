@@ -61,6 +61,9 @@ nitpicky = False
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+# CNAME is copied verbatim into the build output so GitHub Pages picks up
+# the custom domain from the deployed artifact.
+html_extra_path = ["CNAME"]
 html_title = f"tn-venv {release}"
 html_theme_options = {
     "navigation_depth": 4,
