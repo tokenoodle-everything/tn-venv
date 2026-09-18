@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from tn_venv.discovery import PythonInfo
-from tn_venv.errors import TNError
+from tn_venv.errors import TnVenvError
 from tn_venv.session import SessionResult, create_venv
 
 
@@ -30,7 +30,7 @@ def test_create_venv_no_pip(tmp_path: Path) -> None:
 def test_create_venv_existing_raises(tmp_path: Path) -> None:
     dest = tmp_path / "venv"
     create_venv(dest, quiet=True)
-    with pytest.raises(TNError):
+    with pytest.raises(TnVenvError):
         create_venv(dest, quiet=True)
 
 
@@ -88,7 +88,7 @@ def test_create_venv_python_string_spec(tmp_path: Path) -> None:
 
 def test_create_venv_invalid_python_raises(tmp_path: Path) -> None:
     dest = tmp_path / "venv"
-    with pytest.raises(TNError):
+    with pytest.raises(TnVenvError):
         create_venv(dest, python="99.99.99", quiet=True)
 
 
@@ -101,14 +101,14 @@ def test_create_venv_unexpected_failure_wrapped(
         raise RuntimeError("kaboom")
 
     monkeypatch.setattr(session, "run_session", boom)
-    with pytest.raises(TNError) as excinfo:
+    with pytest.raises(TnVenvError) as excinfo:
         create_venv(tmp_path / "x", quiet=True)
     assert "kaboom" in str(excinfo.value)
 
 
 def test_create_venv_requirements_file_not_found(tmp_path: Path) -> None:
     dest = tmp_path / "venv"
-    with pytest.raises(TNError):
+    with pytest.raises(TnVenvError):
         create_venv(dest, requirements=[str(tmp_path / "nope.txt")], quiet=True)
 
 

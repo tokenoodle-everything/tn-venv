@@ -29,7 +29,7 @@ Requires Python 3.11 or newer.
    `tn_venv/config/spec.py`; the parser, env-var loader, and config-file
    loader all derive from that table. Do not hand-edit `cli.py` for new
    options.
-2. **Typed failures.** Raise a subclass of `tn_venv.errors.TNError` for any
+2. **Typed failures.** Raise a subclass of `tn_venv.errors.TnVenvError` for any
    anticipated failure; never bare `Exception` or `sys.exit` outside
    `cli.py`.
 3. **No unguarded platform code.** Windows-only and POSIX-only paths are

@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .config import find_default_config, load_env_config, load_file_config
 from .config.spec import OPTION_SPECS, OptionSpec
-from .errors import ConfigError, TNError
+from .errors import ConfigError, TnVenvError
 from .report import Reporter
 from .session import Options, merge_config, run_session
 from .version import __version__
@@ -212,7 +212,7 @@ def cli_run(
     except ConfigError as exc:
         reporter.error(str(exc))
         return 2
-    except TNError as exc:
+    except TnVenvError as exc:
         reporter.error(str(exc))
         return 1
     except KeyboardInterrupt:  # pragma: no cover

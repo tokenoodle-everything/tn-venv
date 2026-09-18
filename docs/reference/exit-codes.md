@@ -6,7 +6,7 @@ react without parsing output.
 | Code | Meaning | Typical causes |
 |---|---|---|
 | `0` | success | environment created; `--list-pythons`, `--dry-run`, `--help`, `--version` completed |
-| `1` | execution failure (`TNError`) | destination already contains an environment; interpreter not found; ensurepip/pip failed; lock timed out; requirements file missing |
+| `1` | execution failure (`TnVenvError`) | destination already contains an environment; interpreter not found; ensurepip/pip failed; lock timed out; requirements file missing |
 | `2` | usage / configuration error | unknown flag; invalid choice; `--symlinks` with `--copies`; malformed config file or env var; unknown activator |
 | `130` | interrupted | Ctrl+C during creation |
 

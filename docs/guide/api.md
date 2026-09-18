@@ -57,13 +57,13 @@ otherwise it records the installed `pip` version, whether `setuptools` and
 All deliberate failures raise from a single hierarchy:
 
 ```python
-from tn_venv import TNError, InterpreterNotFoundError, CreateError, SeedError
+from tn_venv import TnVenvError, InterpreterNotFoundError, CreateError, SeedError
 
 try:
     create_venv("/srv/app/.venv", python="3.99")
 except InterpreterNotFoundError as exc:
     print(exc.spec, exc.tried)   # the spec and every candidate probed
-except TNError as exc:
+except TnVenvError as exc:
     print("creation failed:", exc)
 ```
 

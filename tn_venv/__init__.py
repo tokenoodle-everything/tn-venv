@@ -20,7 +20,7 @@ from .errors import (
     DiscoverError,
     InterpreterNotFoundError,
     SeedError,
-    TNError,
+    TnVenvError,
 )
 from .session import Options, SessionResult, create_venv
 from .version import __version__, __version_tuple__
@@ -40,7 +40,7 @@ __all__ = [
     "cli_run",
     "Options",
     "SessionResult",
-    "TNError",
+    "TnVenvError",
     "ConfigError",
     "CreateError",
     "DiscoverError",

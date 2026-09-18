@@ -19,7 +19,7 @@ from .config.spec import OPTION_SPECS
 from .create import CreatorContext, make_creator
 from .create.activators import resolve_activators
 from .discovery import PythonInfo, discover
-from .errors import ConfigError, TNError
+from .errors import ConfigError, TnVenvError
 from .report import Reporter, SILENT
 from .seed import SeedResult, make_seeder
 from .util.lock import FileLock
@@ -275,7 +275,7 @@ def create_venv(
     reporter = SILENT if quiet else Reporter(verbosity=1)
     try:
         return run_session(options, reporter)
-    except TNError:
+    except TnVenvError:
         raise
     except Exception as exc:  # pragma: no cover - defensive
-        raise TNError(f"unexpected failure while creating {dest}: {exc}") from exc
+        raise TnVenvError(f"unexpected failure while creating {dest}: {exc}") from exc

@@ -1,6 +1,6 @@
 """Exception hierarchy for tn-venv.
 
-Every error raised intentionally by tn-venv derives from :class:`TNError`,
+Every error raised intentionally by tn-venv derives from :class:`TnVenvError`,
 so callers (and the CLI) can distinguish *our* failures from unexpected
 programmer errors.
 """
@@ -9,6 +9,7 @@ from __future__ import annotations
 
 __all__ = [
     "TNError",
+    "TnVenvError",
     "ConfigError",
     "DiscoverError",
     "CreateError",
@@ -20,15 +21,18 @@ __all__ = [
 ]
 
 
-class TNError(Exception):
+class TnVenvError(Exception):
     """Base class for all tn-venv errors."""
 
 
-class ConfigError(TNError):
+TNError = TnVenvError  # backport
+
+
+class ConfigError(TnVenvError):
     """Invalid configuration (CLI flag, env var, or config file)."""
 
 
-class DiscoverError(TNError):
+class DiscoverError(TnVenvError):
     """Failure while probing a Python interpreter."""
 
 
@@ -44,23 +48,23 @@ class InterpreterNotFoundError(DiscoverError):
         super().__init__(f"no Python interpreter found for spec {spec!r}{hint}")
 
 
-class CreateError(TNError):
+class CreateError(TnVenvError):
     """Failure while laying down the virtual environment files."""
 
 
-class ActivateError(TNError):
+class ActivateError(TnVenvError):
     """Failure while generating activation scripts."""
 
 
-class SeedError(TNError):
+class SeedError(TnVenvError):
     """Failure while installing pip / setuptools / wheel / packages."""
 
 
-class LockError(TNError):
+class LockError(TnVenvError):
     """Could not acquire the creation lock in time."""
 
 
-class SubprocessError(TNError):
+class SubprocessError(TnVenvError):
     """A helper subprocess exited with a non-zero status."""
 
     def __init__(self, cmd: list[str], returncode: int, output: str = "") -> None:

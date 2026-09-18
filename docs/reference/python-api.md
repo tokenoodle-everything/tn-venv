@@ -109,7 +109,7 @@ every provider can find.
 ## Exceptions
 
 ```text
-TNError                     # base class
+TnVenvError                     # base class
 ├── ConfigError             # bad options, env vars, or config file
 ├── DiscoverError           # interpreter probing failed
 │   └── InterpreterNotFoundError   # .spec, .tried
@@ -120,4 +120,4 @@ TNError                     # base class
 └── SubprocessError         # .cmd, .returncode, .output
 ```
 
-All are importable from the package root (`from tn_venv import TNError, …`).
+All are importable from the package root (`from tn_venv import TnVenvError, …`).

@@ -13,12 +13,12 @@ from tn_venv.errors import (
     LockError,
     SeedError,
     SubprocessError,
-    TNError,
+    TnVenvError,
 )
 
 
-def test_tnerror_is_exception() -> None:
-    assert issubclass(TNError, Exception)
+def test_TnVenvError_is_exception() -> None:
+    assert issubclass(TnVenvError, Exception)
 
 
 @pytest.mark.parametrize(
@@ -34,8 +34,8 @@ def test_tnerror_is_exception() -> None:
         SubprocessError,
     ],
 )
-def test_all_errors_inherit_from_tnerror(cls: type[Exception]) -> None:
-    assert issubclass(cls, TNError)
+def test_all_errors_inherit_from_TnVenvError(cls: type[Exception]) -> None:
+    assert issubclass(cls, TnVenvError)
 
 
 def test_interpreter_not_found_no_candidates() -> None:

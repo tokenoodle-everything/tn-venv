@@ -12,7 +12,7 @@ from tn_venv import (
     Options,
     SeedError,
     SessionResult,
-    TNError,
+    TnVenvError,
     cli_run,
     create_venv,
 )
@@ -29,12 +29,12 @@ def test_public_classes() -> None:
 
 
 def test_error_hierarchy_exposed() -> None:
-    assert issubclass(ConfigError, TNError)
-    assert issubclass(CreateError, TNError)
-    assert issubclass(DiscoverError, TNError)
-    assert issubclass(InterpreterNotFoundError, TNError)
-    assert issubclass(SeedError, TNError)
-    assert issubclass(ActivateError, TNError)
+    assert issubclass(ConfigError, TnVenvError)
+    assert issubclass(CreateError, TnVenvError)
+    assert issubclass(DiscoverError, TnVenvError)
+    assert issubclass(InterpreterNotFoundError, TnVenvError)
+    assert issubclass(SeedError, TnVenvError)
+    assert issubclass(ActivateError, TnVenvError)
 
 
 def test_cli_run_signature_accepts_no_args() -> None:

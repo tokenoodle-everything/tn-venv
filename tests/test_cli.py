@@ -8,7 +8,7 @@ import pytest
 
 from tn_venv import cli
 from tn_venv.config.spec import OPTION_SPECS
-from tn_venv.errors import ConfigError, TNError
+from tn_venv.errors import ConfigError, TnVenvError
 
 
 def test_build_parser_basic() -> None:
@@ -117,7 +117,7 @@ def test_cli_run_unknown_config_file(tmp_path: Path) -> None:
 def test_cli_run_invalid_python_returns_one(monkeypatch: pytest.MonkeyPatch) -> None:
     # `cli_run` shouldn't blow up even when no spec matches
     rc = cli.cli_run(["--python", "99.99.99", "/tmp/x"])
-    # No matching interpreter => TNError => exit code 1
+    # No matching interpreter => TnVenvError => exit code 1
     assert rc == 1
 
 
@@ -160,7 +160,7 @@ def test_cli_run_config_error_returns_two(
 
 def test_cli_run_tn_error_returns_one(monkeypatch: pytest.MonkeyPatch) -> None:
     def boom(*args, **kwargs):
-        raise TNError("bad")
+        raise TnVenvError("bad")
 
     monkeypatch.setattr(cli, "_resolve_options", boom)
     rc = cli.cli_run(["/tmp/x"])

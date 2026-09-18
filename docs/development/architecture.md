@@ -57,7 +57,7 @@ environment being built).
    directory layout, `pyvenv.cfg` keys, Windows launcher binaries, `lib64`
    symlinks — tn-venv adopts it, so environments stay interchangeable.
 5. **Failures are typed.** Every anticipated failure raises a subclass of
-   `TNError`; the CLI maps them to documented exit codes and the API
+   `TnVenvError`; the CLI maps them to documented exit codes and the API
    re-raises them unmodified.
 
 ## Data flow in detail

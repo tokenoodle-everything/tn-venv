@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-09-19
+
+### Changed
+- Change name of ``TNError`` to ``TnVenvError``.
+- Fix [#1](https://github.com/tokenoodle-everything/tn-venv/issues/1).
+
 ## [0.1.1] — 2026-09-13
 
 ### Added
