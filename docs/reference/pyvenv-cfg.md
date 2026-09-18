@@ -17,7 +17,7 @@ prompt = 'my-project'
 executable = C:\Python314\python.exe
 base-executable = C:\Python314\python.exe
 command = C:\Python314\python.exe -m tn_venv .venv --prompt my-project
-tn-venv = 0.1.1
+tn-venv = your.release.version
 ```
 
 ## Standard keys

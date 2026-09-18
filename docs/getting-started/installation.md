@@ -42,7 +42,7 @@ $ python -m pytest
 
 ```console
 $ tn-venv --version
-tn-venv 0.1.1
+tn-venv your.release.version
 
 $ tn-venv --list-pythons
 ==> discovering interpreters…
