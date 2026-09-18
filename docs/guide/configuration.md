@@ -95,11 +95,30 @@ option mapping.
 ```console
 $ TN_VENV_PROMPT=demo tn-venv --dry-run
 ==> resolved configuration (dry run — nothing created)
-  dest                     = WindowsPath('.venv')
+  dest                     = WindowsPath('=demo')
   python                   = []
   clear                    = False
-  ...
-  prompt                   = 'demo'
+  upgrade                  = False
+  system_site_packages     = False
+  symlinks                 = None
+  copies                   = None
+  scm_ignore               = 'git'
+  seeder                   = 'pip'
+  no_pip                   = False
+  pip                      = None
+  upgrade_pip              = False
+  setuptools               = None
+  wheel                    = None
+  extra_search_dir         = []
+  offline                  = False
+  seed_packages            = []
+  requirements             = []
+  activators               = []
+  prompt                   = None
+  quiet                    = 0
+  verbose                  = 0
+  color                    = None
+  command                  = 'python.exe -m tn_venv --dry-run =demo'
 ```
 
 This is the authoritative way to answer "why is my prompt `demo`?" — work
