@@ -10,7 +10,7 @@ project = "tn-venv"
 copyright = "2026, tokenoodle-everything"
 author = "tokenoodle-everything"
 release = "0.1.0"
-version = ".".join(release.split(".")[:2])  # short X.Y.Z -> X.Y
+version = "0.1.2"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
