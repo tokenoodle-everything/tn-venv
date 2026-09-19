@@ -5,7 +5,7 @@
 
 **Please do not open a public GitHub issue for security reports.**
 
-Instead, email the maintainers at **tokenoodle@126.com** with:
+Instead, email the maintainers at **security@tokenoodle.com** with:
 
 - a description of the vulnerability and its impact;
 - minimal reproduction steps;
