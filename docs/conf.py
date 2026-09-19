@@ -6,22 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import sys
-from importlib.metadata import PackageNotFoundError, version
-from pathlib import Path
-
 project = "tn-venv"
 copyright = "2026, tokenoodle-everything"
 author = "tokenoodle-everything"
-
-try:
-    # Prefer the installed distribution metadata (single release source).
-    release = version("tn-venv")
-except PackageNotFoundError:
-    # Docs built from a bare checkout: fall back to the package itself.
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from tn_venv.version import __version__ as release
-
+release = "0.1.0"
 version = ".".join(release.split(".")[:2])  # short X.Y.Z -> X.Y
 
 # -- General configuration ---------------------------------------------------
