@@ -24,7 +24,8 @@ try:
 except ImportError:  # pragma: no cover - python < 3.11
     tomllib = None  # type: ignore[assignment]
 
-_CONFIG_SECTION_NAMES = ("tool.tn-venv", "tn-venv", "tn_venv")
+# See #5
+# _CONFIG_SECTION_NAMES = ("tool.tn-venv", "tn-venv", "tn_venv")
 _DEFAULT_CANDIDATES = (
     "pyproject.toml",
     "tn-venv.ini",

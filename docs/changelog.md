@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.10] — 2026-09-30
+
+### Fixed
+- Fixes [#5](https://github.com/tokenoodle-everything/tn-venv/issues/5).
+  For the time being, comment out this constant.
+
 ## [0.1.9] — 2026-09-29
 
 ### Fixed
@@ -13,7 +19,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`python`, `extra_search_dir`, `seed_packages`, `requirements`,
   `activators`) to empty lists *before* filtering; previously the
   normalisation loop was dead code and could never run.
-- Fixes [#8](https://github.com/tokenoodle-everything/tn-venv/issues/8).
+  Fixes [#8](https://github.com/tokenoodle-everything/tn-venv/issues/8).
 - Fixes [#9](https://github.com/tokenoodle-everything/tn-venv/issues/9).
 
 
