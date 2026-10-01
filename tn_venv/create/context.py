@@ -64,7 +64,10 @@ def site_packages_rel(python: PythonInfo, platform: str | None = None) -> Path:
 
 
 def exe_name_for(python: PythonInfo, platform: str | None = None) -> str:
-    platform = platform or sys.platform
+    # python: reserved for future, e.g. python.major/minor to get python3.11
+    _ = python  # suppress unused‑argument warning, see #4
+    if platform is None:
+        platform = sys.platform
     if platform == "win32":
         return "python.exe"
     return "python3"
