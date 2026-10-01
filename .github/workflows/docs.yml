@@ -43,7 +43,7 @@ jobs:
           python -m sphinx -b html -W --keep-going docs docs/_build
 
       - name: "Upload Pages artifact"
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs/_build
 
