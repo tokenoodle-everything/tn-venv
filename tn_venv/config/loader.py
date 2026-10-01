@@ -119,7 +119,7 @@ def load_file_config(path: Path | None) -> dict[str, Any]:
     return _map_keys(raw, source=str(path))
 
 
-def _map_keys(raw: dict[str, Any], *, source: str) -> dict[str, Any]:
+def _map_keys(raw: dict[str, Any], *, source: str) -> dict[str, Any]:  # FIXME: source parameter dosn't used
     """Translate config keys (kebab-case) into option dests with coercion."""
     by_config_key = {
         spec.config_key: spec for spec in OPTION_SPECS.values() if not spec.cli_only
@@ -132,10 +132,7 @@ def _map_keys(raw: dict[str, Any], *, source: str) -> dict[str, Any]:
         if spec is None:
             # ignore unknown keys silently in shared files like pyproject.toml
             continue
-        if isinstance(value, bool) and spec.kind != "bool":
-            out[spec.dest] = coerce_value(spec, value)
-        else:
-            out[spec.dest] = coerce_value(spec, value)
+        out[spec.dest] = coerce_value(spec, value)  # See #7
     return out
 
 
