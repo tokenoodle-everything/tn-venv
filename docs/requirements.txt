@@ -2,7 +2,7 @@
 # Install with:  pip install -r docs/requirements.txt
 sphinx>=9.0.4
 myst-parser>=5.1.0
-sphinx-copybutton>=0.5
+sphinx-copybutton>=0.5.2
 sphinx-design>=0.5
 sphinx-rtd-theme>=2.0
 tn-venv>=0.1.0
