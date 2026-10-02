@@ -6,7 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.1.11] — 2026-10-01
+## [0.1.13] — 2026-10-02
+
+### Fixed
+- Fixes [#6](https://github.com/tokenoodle-everything/tn-venv/issues/6).
+
+## [0.1.12] — 2026-10-01
 
 ### Fixed
 - Fixes [#7](https://github.com/tokenoodle-everything/tn-venv/issues/7).

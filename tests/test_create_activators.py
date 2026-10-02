@@ -86,6 +86,33 @@ def test_resolve_activators_negative_removes() -> None:
     assert "bash" in names
 
 
+def test_resolve_activators_all_minus_exclusion() -> None:
+    items = resolve_activators(["all,-fish"])
+    names = {a.name for a in items}
+    assert names == set(available_activators()) - {"fish"}
+
+
+def test_resolve_activators_default_minus_exclusion() -> None:
+    items = resolve_activators(["default,-fish"])
+    names = {a.name for a in items}
+    assert names == set(available_activators()) - {"fish"}
+
+
+def test_resolve_activators_all_minus_multiple_exclusions() -> None:
+    items = resolve_activators(["all,-bash,-fish"])
+    names = {a.name for a in items}
+    assert "bash" not in names
+    assert "fish" not in names
+    assert "powershell" in names
+
+
+def test_resolve_activators_mixed_pseudo_and_bare_raises() -> None:
+    with pytest.raises(ConfigError):
+        resolve_activators(["all,bash"])
+    with pytest.raises(ConfigError):
+        resolve_activators(["default,fish"])
+
+
 def test_resolve_activators_unknown_raises() -> None:
     with pytest.raises(ConfigError):
         resolve_activators(["bogus"])
