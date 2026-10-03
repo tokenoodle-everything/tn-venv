@@ -121,3 +121,17 @@ TnVenvError                     # base class
 ```
 
 All are importable from the package root (`from tn_venv import TnVenvError, …`).
+
+## Plugin system
+
+| Symbol | Type | Meaning |
+|---|---|---|
+| `Plugin` | class | base class — subclass and override `register(hooks)` |
+| `HookName` | enum | the five lifecycle events (`SESSION_START`, `PRE_CREATE`, `POST_ACTIVATORS`, `POST_SEED`, `SESSION_END`) |
+| `HookContext` | dataclass | the single argument passed to every hook (`options`, `reporter`, `result`, `data`) |
+| `load_plugins` | function | build a populated `HookRegistry` from entry points and `TN_VENV_PLUGINS` |
+| `VersionStampPlugin` | class | built-in that writes `tn-venv-version` into `pyvenv.cfg` |
+
+See {doc}`../guide/plugins` for the full tutorial and entry-point
+recipe; the dataclass fields, hook names, and public symbols are
+backward-compatible.

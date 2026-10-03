@@ -20,6 +20,7 @@ from .create import CreatorContext, make_creator
 from .create.activators import resolve_activators
 from .discovery import PythonInfo, discover
 from .errors import ConfigError, TnVenvError
+from .plugins import HookContext, HookName, load_plugins
 from .report import Reporter, SILENT
 from .seed import SeedResult, make_seeder
 from .util.lock import FileLock
@@ -134,6 +135,13 @@ def run_session(options: Options, reporter: Reporter | None = None) -> SessionRe
     """Execute the full creation pipeline described by *options*."""
     reporter = reporter or Reporter(verbosity=options.verbosity, color=options.color)
 
+    # -- 0. plugins ----------------------------------------------------------
+    # Load the plugin registry up front so every stage of the pipeline can
+    # emit events.  Plugins run in priority order; the built-in version
+    # stamper fires after activators are written.
+    hooks = load_plugins(reporter=reporter)
+    hook_ctx = HookContext(options=options, reporter=reporter, data={})
+
     dest = options.dest.expanduser()
     if not dest.is_absolute():
         dest = Path.cwd() / dest
@@ -150,6 +158,7 @@ def run_session(options: Options, reporter: Reporter | None = None) -> SessionRe
         f"interpreter: {reporter.style(python.implementation, 'em')} "
         f"{python.version_str} ({python.bits}-bit) from {reporter.path(python.base_executable)}"
     )
+    hooks.emit(HookName.SESSION_START, hook_ctx)
 
     # -- 2. create under lock -------------------------------------------------
     with FileLock(dest):
@@ -165,7 +174,11 @@ def run_session(options: Options, reporter: Reporter | None = None) -> SessionRe
             command=options.command,
             report=reporter,
         )
+        hooks.emit(HookName.PRE_CREATE, hook_ctx)
         ctx: CreatorContext = creator.create()
+        # expose the freshly built paths to plugins that need them
+        hook_ctx.data["cfg_path"] = ctx.cfg_path
+        hook_ctx.data["env_dir"] = ctx.env_dir
         reporter.ok(f"python binaries installed to {ctx.bin_path}")
 
         # -- 3. activators -----------------------------------------------------
@@ -175,6 +188,8 @@ def run_session(options: Options, reporter: Reporter | None = None) -> SessionRe
             scripts.extend(written)
         if scripts:
             reporter.ok(f"{len(scripts)} activation script(s) generated")
+        hook_ctx.data["scripts"] = list(scripts)
+        hooks.emit(HookName.POST_ACTIVATORS, hook_ctx)
 
         # -- 4. seed -------------------------------------------------------------
         seed_result: SeedResult | None = None
@@ -195,6 +210,8 @@ def run_session(options: Options, reporter: Reporter | None = None) -> SessionRe
                 reporter.ok(f"pip {seed_result.pip} installed")
         else:
             reporter.debug("seeder disabled; skipping pip installation")
+        hook_ctx.data["seed_result"] = seed_result
+        hooks.emit(HookName.POST_SEED, hook_ctx)
 
     result = SessionResult(
         env_dir=ctx.env_dir,
@@ -206,6 +223,8 @@ def run_session(options: Options, reporter: Reporter | None = None) -> SessionRe
         activation_scripts=scripts,
         seed=seed_result,
     )
+    hook_ctx.result = result
+    hooks.emit(HookName.SESSION_END, hook_ctx)
     reporter.step(f"environment ready: {reporter.path(ctx.env_exe)}")
     _print_activation_hint(ctx, reporter)
     return result

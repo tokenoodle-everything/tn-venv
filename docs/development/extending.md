@@ -4,6 +4,12 @@ The extension points are ordinary Python classes. This page shows the two
 most common ones — a new activator and a new seeder — and where to register
 them.
 
+If you only need to *observe* the pipeline (log timestamps, dump
+metadata, write extra files into the new environment, install extra
+packages, …) you almost certainly want the {doc}`plugin system
+</guide/plugins>` instead — it is the stable, public hook surface and
+needs no patching of the upstream code.
+
 ## Writing an activator
 
 An activator is a class with a `name` and a `templates` mapping of

@@ -22,6 +22,7 @@ The suite lives in `tests/`, one module per source module:
 | `test_seed.py` | seeder command construction (subprocesses mocked) |
 | `test_session_options.py` | `Options` validation and derived properties |
 | `test_create_venv.py` | end-to-end creation, isolation checks |
+| `test_plugins.py`, `test_plugins_builtin.py` | plugin registry, loader, pipeline hooks, and the built-in `VersionStampPlugin` |
 | `test_errors.py`, `test_report.py` | exception text, leveled output |
 | `test_util_lock.py`, `test_util_path.py`, `test_util_process.py` | utilities |
 | `test_package.py` | packaging metadata and imports |

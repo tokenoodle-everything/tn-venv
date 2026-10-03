@@ -1,0 +1,479 @@
+﻿"""Tests for the plugin system: registry, loader, and pipeline integration."""
+
+from __future__ import annotations
+
+import sys
+import types
+from importlib import metadata
+from pathlib import Path
+
+import pytest
+
+import tn_venv.plugins as plugins_pkg
+from tn_venv.plugins import (
+    HookContext,
+    HookName,
+    HookRegistry,
+    PLUGIN_ENTRY_POINT,
+    PLUGIN_ENV_VAR,
+    Plugin,
+    load_plugins,
+    parse_plugin_spec,
+    require_plugin,
+)
+from tn_venv.plugins.loader import (
+    _iter_entry_points,
+    _resolve_target,
+)
+from tn_venv.report import Reporter
+
+
+# -- HookRegistry -----------------------------------------------------------
+
+
+def _capture_registry() -> tuple[HookRegistry, list[str]]:
+    """A registry that records the order its hooks fired."""
+    order: list[str] = []
+
+    class SpyPlugin(Plugin):
+        name = "spy"
+
+        def register(self, hooks):
+            hooks.add(HookName.SESSION_START, self._first, priority=200)
+            hooks.add(HookName.SESSION_START, self._second, priority=100)
+            hooks.add(HookName.SESSION_END, self._end)
+
+        def _first(self, _ctx):
+            order.append("first")
+
+        def _second(self, _ctx):
+            order.append("second")
+
+        def _end(self, _ctx):
+            order.append("end")
+
+    registry = HookRegistry()
+    SpyPlugin().register(registry)
+    return registry, order
+
+
+def test_registry_priority_orders_highest_first() -> None:
+    registry, order = _capture_registry()
+    registry.emit(HookName.SESSION_START)
+    assert order == ["first", "second"]
+
+
+def test_registry_listeners_returns_callables_in_dispatch_order() -> None:
+    registry, _ = _capture_registry()
+    callables = registry.listeners(HookName.SESSION_START)
+    assert [fn.__name__ for fn in callables] == ["_first", "_second"]
+
+
+def test_registry_listener_count() -> None:
+    registry, _ = _capture_registry()
+    assert registry.listener_count(HookName.SESSION_START) == 2
+    assert registry.listener_count(HookName.SESSION_END) == 1
+    assert registry.listener_count(HookName.POST_SEED) == 0
+
+
+def test_registry_accepts_string_hook_name() -> None:
+    registry = HookRegistry()
+    seen: list[str] = []
+
+    @registry.add(HookName.POST_SEED)
+    def _cb(ctx):
+        seen.append("called")
+
+    registry.emit("post_seed")
+    assert seen == ["called"]
+
+
+def test_registry_rejects_unknown_hook_string() -> None:
+    registry = HookRegistry()
+    with pytest.raises(ValueError):
+        registry.add("not-a-hook", lambda ctx: None)
+
+
+def test_registry_one_failing_listener_does_not_stop_others() -> None:
+    reporter = Reporter(verbosity=0)
+    registry = HookRegistry(reporter=reporter)
+    calls: list[str] = []
+
+    def boom(_ctx):
+        calls.append("boom")
+        raise RuntimeError("explode")
+
+    def after(_ctx):
+        calls.append("after")
+
+    registry.add(HookName.SESSION_START, boom, plugin_name="boomer")
+    registry.add(HookName.SESSION_START, after, plugin_name="survivor")
+    ctx = HookContext(reporter=reporter)
+    returned = registry.emit(HookName.SESSION_START, ctx)
+    assert calls == ["boom", "after"]
+    assert returned is ctx
+
+
+def test_registry_no_listeners_is_noop() -> None:
+    registry = HookRegistry()
+    registry.emit(HookName.SESSION_END)
+
+
+# -- Plugin base class ------------------------------------------------------
+
+
+def test_plugin_default_name_is_class_name() -> None:
+    class _MyPlugin(Plugin):
+        pass
+
+    assert _MyPlugin().name == "_MyPlugin"
+
+
+def test_plugin_default_register_is_noop() -> None:
+    registry = HookRegistry()
+    Plugin().register(registry)
+    for hook in HookName:
+        assert registry.listener_count(hook) == 0
+
+
+def test_plugin_add_supports_decorator_form() -> None:
+    registry = HookRegistry()
+    calls: list[str] = []
+
+    class _P(Plugin):
+        name = "deco"
+
+        def register(self, hooks):
+            @hooks.add(HookName.SESSION_START, plugin_name=self.name)
+            def _hook(ctx):
+                calls.append(self.name)
+
+    _P().register(registry)
+    registry.emit(HookName.SESSION_START)
+    assert calls == ["deco"]
+
+
+# -- parse_plugin_spec ------------------------------------------------------
+
+
+def test_parse_plugin_spec_dedups_and_trims() -> None:
+    assert parse_plugin_spec(" a , b ,a , ,c ") == ["a", "b", "c"]
+
+
+def test_parse_plugin_spec_empty() -> None:
+    assert parse_plugin_spec("") == []
+
+
+# -- require_plugin ---------------------------------------------------------
+
+
+def test_require_plugin_returns_known_builtin() -> None:
+    cls = require_plugin("version_stamp")
+    assert cls is plugins_pkg.VersionStampPlugin
+
+
+def test_require_plugin_unknown_raises() -> None:
+    from tn_venv.errors import ConfigError
+
+    with pytest.raises(ConfigError):
+        require_plugin("nope")
+
+
+# -- load_plugins: env var path ---------------------------------------------
+@pytest.fixture
+def _clean_plugin_modules(monkeypatch: pytest.MonkeyPatch):
+    created: list[str] = []
+    yield created
+    for name in created:
+        sys.modules.pop(name, None)
+
+
+def test_load_plugins_from_env_module_with_plugins(
+    _clean_plugin_modules: list[str],
+) -> None:
+    name = "tn_venv_tests_plugin_env"
+    _clean_plugin_modules.append(name)
+
+    class _A(Plugin):
+        name = "env_a"
+
+        def register(self, hooks):
+            hooks.add(HookName.SESSION_START, lambda _c: None, plugin_name=self.name)
+
+    mod = types.ModuleType(name)
+    mod.PLUGINS = [_A]
+    sys.modules[name] = mod
+
+    reporter = Reporter(verbosity=0)
+    registry = load_plugins(reporter=reporter, env={PLUGIN_ENV_VAR: name})
+    assert registry.listener_count(HookName.POST_ACTIVATORS) >= 1
+
+
+def test_load_plugins_from_env_class_reference(
+    _clean_plugin_modules: list[str],
+) -> None:
+    name = "tn_venv_tests_plugin_class"
+    _clean_plugin_modules.append(name)
+
+    class _B(Plugin):
+        name = "env_b"
+
+        def register(self, hooks):
+            hooks.add(HookName.SESSION_END, lambda _c: None, plugin_name=self.name)
+
+    mod = types.ModuleType(name)
+    mod._B = _B
+    sys.modules[name] = mod
+
+    registry = load_plugins(
+        Reporter(verbosity=0),
+        env={PLUGIN_ENV_VAR: f"{name}:_B"},
+    )
+    assert any(
+        fn.__name__ == "<lambda>"
+        for fn in registry.listeners(HookName.SESSION_END)
+    )
+
+
+def test_load_plugins_skips_missing_module() -> None:
+    reporter = Reporter(verbosity=0)
+    load_plugins(
+        reporter=reporter,
+        env={PLUGIN_ENV_VAR: "definitely.not.a.real.module"},
+    )
+    assert reporter is not None
+
+
+def test_load_plugins_skips_missing_attr(
+    _clean_plugin_modules: list[str],
+) -> None:
+    name = "tn_venv_tests_plugin_missing_attr"
+    _clean_plugin_modules.append(name)
+    mod = types.ModuleType(name)
+    sys.modules[name] = mod
+    reporter = Reporter(verbosity=0)
+    load_plugins(
+        reporter=reporter,
+        env={PLUGIN_ENV_VAR: f"{name}:DoesNotExist"},
+    )
+    assert reporter is not None
+
+
+def test_load_plugins_dedupes_same_class_via_entry_point_and_env(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The same plugin listed via two sources should be loaded once."""
+
+    class _C(Plugin):
+        name = "dup_test"
+
+    seen_calls: list[type[Plugin]] = []
+
+    class _FakeEP:
+        name = "dup_test"
+        value = "tn_venv.tests._fake_dup:Class"
+
+        def load(self):
+            seen_calls.append(_C)
+            return _C
+
+    monkeypatch.setattr(
+        "tn_venv.plugins.loader._iter_entry_points", lambda: iter([_FakeEP()])
+    )
+    registry = load_plugins(
+        Reporter(verbosity=0),
+        env={PLUGIN_ENV_VAR: "tn_venv.tests._fake_dup:Class"},
+    )
+    assert seen_calls.count(_C) == 1
+    assert registry is not None
+
+
+
+# -- pipeline integration ---------------------------------------------------
+
+
+class _NullCtx:
+    """FileLock replacement: a context manager that does nothing."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
+
+
+def _fake_python():
+    from tn_venv.discovery import PythonInfo
+
+    return PythonInfo.from_current()
+
+
+class _FakeCreator:
+    """Minimal stand-in for a Creator — returns a populated CreatorContext."""
+
+    def __init__(self, env_dir: Path, prompt: str | None = None) -> None:
+        self._env_dir = env_dir
+        self._prompt = prompt or ""
+
+    def create(self):
+        from tn_venv.create.context import CreatorContext
+
+        py = _fake_python()
+        return CreatorContext(
+            env_dir=self._env_dir,
+            env_name=self._env_dir.name,
+            prompt=self._prompt,
+            python=py,
+            bin_path=self._env_dir / "bin",
+            lib_path=self._env_dir / "lib" / "site-packages",
+            inc_path=self._env_dir / "include",
+            cfg_path=self._env_dir / "pyvenv.cfg",
+            env_exe=self._env_dir / "bin" / "python",
+            bin_name="bin",
+        )
+
+
+class _FakeSeeder:
+    name = "fake"
+
+    def seed(self, ctx, report):
+        from tn_venv.seed import SeedResult
+
+        return SeedResult()
+
+
+def _patch_pipeline(monkeypatch: pytest.MonkeyPatch, env_dir: Path) -> None:
+    from tn_venv import session as session_mod
+
+    def _make_creator(*a, **k):
+        return _FakeCreator(env_dir, prompt=k.get("prompt"))
+
+    monkeypatch.setattr(session_mod, "discover", lambda *a, **k: _fake_python())
+    monkeypatch.setattr(session_mod, "FileLock", lambda *_a, **_k: _NullCtx())
+    monkeypatch.setattr(session_mod, "make_creator", _make_creator)
+    monkeypatch.setattr(session_mod, "resolve_activators", lambda _names: [])
+    monkeypatch.setattr(session_mod, "make_seeder", lambda *_a, **_k: _FakeSeeder())
+
+
+def test_run_session_emits_every_hook(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """All five hooks fire during a real run_session, in order."""
+    from tn_venv import session as session_mod
+
+    fired: list[str] = []
+
+    class _Recording(Plugin):
+        name = "recorder"
+
+        def register(self, hooks):
+            hooks.add(HookName.SESSION_START, lambda c: fired.append("session_start"))
+            hooks.add(HookName.PRE_CREATE, lambda c: fired.append("pre_create"))
+            hooks.add(HookName.POST_ACTIVATORS, lambda c: fired.append("post_activators"))
+            hooks.add(HookName.POST_SEED, lambda c: fired.append("post_seed"))
+            hooks.add(HookName.SESSION_END, lambda c: fired.append("session_end"))
+
+    env_dir = tmp_path / "venv"
+    _patch_pipeline(monkeypatch, env_dir)
+
+    registry = HookRegistry()
+    _Recording().register(registry)
+    monkeypatch.setattr(session_mod, "load_plugins", lambda reporter=None: registry)
+
+    options = session_mod.Options(dest=env_dir, command="test")
+    session_mod.run_session(options, Reporter(verbosity=0))
+
+    assert fired == [
+        "session_start",
+        "pre_create",
+        "post_activators",
+        "post_seed",
+        "session_end",
+    ]
+
+
+def test_session_end_hook_can_mutate_result(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tn_venv import session as session_mod
+
+    class _Tagger(Plugin):
+        name = "tagger"
+
+        def register(self, hooks):
+            def _tag(ctx):
+                if ctx.result is not None:
+                    ctx.result.prompt = ctx.result.prompt + "!"
+
+            hooks.add(HookName.SESSION_END, _tag)
+
+    env_dir = tmp_path / "venv"
+    _patch_pipeline(monkeypatch, env_dir)
+
+    registry = HookRegistry()
+    _Tagger().register(registry)
+    monkeypatch.setattr(session_mod, "load_plugins", lambda reporter=None: registry)
+
+    options = session_mod.Options(dest=env_dir, prompt="base")
+    result = session_mod.run_session(options, Reporter(verbosity=0))
+    assert result.prompt == "base!"
+
+
+def test_broken_listener_does_not_break_run_session(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tn_venv import session as session_mod
+
+    class _Boom(Plugin):
+        name = "boom"
+
+        def register(self, hooks):
+            def _fn(_ctx):
+                raise RuntimeError("plugin exploded")
+
+            hooks.add(HookName.SESSION_START, _fn)
+
+    env_dir = tmp_path / "venv"
+    _patch_pipeline(monkeypatch, env_dir)
+
+    registry = HookRegistry()
+    _Boom().register(registry)
+    monkeypatch.setattr(session_mod, "load_plugins", lambda reporter=None: registry)
+
+    options = session_mod.Options(dest=env_dir)
+    result = session_mod.run_session(options, Reporter(verbosity=0))
+    assert result.env_dir == env_dir
+
+
+def test_run_session_exposes_cfg_path_and_scripts_to_plugins(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tn_venv import session as session_mod
+
+    captured: dict[str, object] = {}
+
+    class _Capturing(Plugin):
+        name = "capture"
+
+        def register(self, hooks):
+            hooks.add(HookName.POST_ACTIVATORS, self._on_post)
+
+        def _on_post(self, ctx):
+            captured["cfg_path"] = ctx.data.get("cfg_path")
+            captured["scripts"] = ctx.data.get("scripts")
+            captured["env_dir"] = ctx.data.get("env_dir")
+
+    env_dir = tmp_path / "venv"
+    _patch_pipeline(monkeypatch, env_dir)
+
+    registry = HookRegistry()
+    _Capturing().register(registry)
+    monkeypatch.setattr(session_mod, "load_plugins", lambda reporter=None: registry)
+
+    options = session_mod.Options(dest=env_dir)
+    session_mod.run_session(options, Reporter(verbosity=0))
+
+    assert captured["env_dir"] == env_dir
+    assert captured["cfg_path"] == env_dir / "pyvenv.cfg"
+    assert captured["scripts"] == []
+

@@ -6,6 +6,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Plugin system under `tn_venv.plugins`: a `Plugin` base class, a
+  priority-ordered `HookRegistry`, and a `load_plugins` loader that
+  combines built-in plugins, third-party entry points in the
+  `tn_venv.plugins` group, and the `TN_VENV_PLUGINS` environment
+  variable. Five lifecycle hooks are emitted by `run_session`:
+  `session_start`, `pre_create`, `post_activators`, `post_seed`,
+  `session_end`.
+- Built-in `VersionStampPlugin`: appends `tn-venv-version = <version>`
+  to `pyvenv.cfg` after the activation scripts have been generated.
+  Doubles as the worked example in the new `docs/guide/plugins.md`.
+- `docs/guide/plugins.md` — user-facing tutorial covering discovery,
+  hook semantics, and writing a plugin. The architecture and
+  environment-variables references were updated to point at it.
+
 ## [0.2.0] — 2026-10-02
 
 ### Added

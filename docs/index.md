@@ -70,6 +70,7 @@ you ask it to (`--offline`).
 | Pick a specific Python | {doc}`guide/interpreters` |
 | Seed packages offline | {doc}`guide/seeding` |
 | Embed tn-venv in Python code | {doc}`guide/api` |
+| Extend with plugins | {doc}`guide/plugins` |
 | Compare with venv / virtualenv / uv | {doc}`guide/comparison` |
 | Hack on tn-venv itself | {doc}`development/architecture` |
 
@@ -92,6 +93,7 @@ guide/lifecycle
 guide/seeding
 guide/activation
 guide/configuration
+guide/plugins
 guide/api
 guide/comparison
 guide/faq

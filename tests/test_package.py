@@ -48,3 +48,16 @@ def test_cli_run_signature_accepts_no_args() -> None:
 def test_create_venv_is_documented_callable() -> None:
     assert create_venv.__doc__
     assert "Programmatic API" in create_venv.__doc__
+
+
+def test_plugin_api_exposed_at_top_level() -> None:
+    # The plugin system is part of the public surface and must be
+    # importable from the package root, not just tn_venv.plugins.
+    for name in (
+        "Plugin",
+        "HookContext",
+        "HookName",
+        "VersionStampPlugin",
+        "load_plugins",
+    ):
+        assert hasattr(tn_venv, name), f"tn_venv.{name} is not exported"

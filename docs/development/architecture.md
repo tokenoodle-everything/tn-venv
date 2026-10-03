@@ -37,6 +37,7 @@ environment being built).
 | `tn_venv.create.context` | `CreatorContext` — the stage contract |
 | `tn_venv.create.activators` | one module per shell, template-based |
 | `tn_venv.seed.seeder` | `PipSeeder` (ensurepip → pin/upgrade → extras) |
+| `tn_venv.plugins` | hook registry, lifecycle hooks, plugin discovery (entry points + `TN_VENV_PLUGINS`) |
 | `tn_venv.util.lock` | inter-process file lock with stale detection |
 | `tn_venv.util.process` | subprocess wrapper with captured output |
 | `tn_venv.report` | leveled, colored console output |
@@ -79,6 +80,20 @@ environment being built).
    all pip steps.
 8. The lock is released and a `SessionResult` is returned; the CLI prints
    the activation hint.
+
+## Plugin hooks
+
+The session pipeline emits five events at well-defined points:
+`session_start`, `pre_create`, `post_activators`, `post_seed`, and
+`session_end`. Each callback receives a
+:class:`~tn_venv.plugins.HookContext` and may mutate `ctx.data` (to
+share scratch state with later hooks of the same run) or `ctx.result`
+(during `session_end` only). Plugins are loaded before step 1 by
+:func:`~tn_venv.plugins.load_plugins`, which consults the built-in
+registry, the `tn_venv.plugins` entry-point group, and the
+`TN_VENV_PLUGINS` environment variable in that order; duplicates are
+deduplicated by class. See {doc}`../guide/plugins` for the user-facing
+tutorial.
 
 ## Concurrency model
 

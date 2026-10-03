@@ -23,6 +23,13 @@ from .errors import (
     TnVenvError,
     TNError,
 )
+from .plugins import (
+    HookContext,
+    HookName,
+    Plugin,
+    VersionStampPlugin,
+    load_plugins,
+)
 from .session import Options, SessionResult, create_venv
 from .version import __version__, __version_tuple__
 
@@ -49,4 +56,9 @@ __all__ = [
     "SeedError",
     "ActivateError",
     "TNError",
+    "Plugin",
+    "HookContext",
+    "HookName",
+    "VersionStampPlugin",
+    "load_plugins",
 ]
