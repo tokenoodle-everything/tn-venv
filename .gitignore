@@ -7,6 +7,7 @@ dist/
 tn_venv.egg-info/
 
 # docs
-_build/
+docs/_build/
+docs/_build_test
 # docs/make.bat
 # docs/Makefile

@@ -2,14 +2,14 @@
 
 `tn-venv` ships with a small plugin system that lets you tap into the
 creation pipeline at five well-defined points. Plugins can read and
-modify the :class:`~tn_venv.session.Options`, peek at the freshly built
-:class:`~tn_venv.create.context.CreatorContext`, append activation
+modify the ``Options``, peek at the freshly built
+``CreatorContext``, append activation
 scripts, stamp metadata into `pyvenv.cfg`, install extra packages, log
 information, or short-circuit parts of the process — all without
 forking tn-venv.
 
 The default install includes one built-in plugin
-(:class:`~tn_venv.plugins.VersionStampPlugin`) that writes
+(``VersionStampPlugin``) that writes
 `tn-venv-version = <version>` into `pyvenv.cfg` after the activation
 scripts are generated.
 
@@ -45,7 +45,7 @@ automatically.
 ## Hooks
 
 The pipeline emits the following events, in order. Each callback
-receives a single :class:`~tn_venv.plugins.HookContext`.
+receives a single ``HookContext``.
 
 | Hook | When | `ctx.data` keys populated by the pipeline |
 |---|---|---|
@@ -78,7 +78,7 @@ under `data["findings"]` and a reporter plugin reads them in
 
 The loader looks at three places, in order, deduplicating by class:
 
-1. **Built-ins** — :class:`~tn_venv.plugins.VersionStampPlugin` is
+1. **Built-ins** — ``VersionStampPlugin`` is
    always loaded.
 2. **Entry points** in the `tn_venv.plugins` group, declared by
    third-party packages.
@@ -123,7 +123,7 @@ looks for a top-level `PLUGINS` iterable, then falls back to the first
 
 ## Writing a plugin
 
-A plugin is a class subclassing :class:`~tn_venv.plugins.Plugin` with
+A plugin is a class subclassing ``Plugin`` with
 a unique `name` and a `register` method:
 
 ```python
@@ -166,9 +166,9 @@ release.
 
 ## Reference
 
-- :mod:`tn_venv.plugins.api` — `Plugin`, `HookName`, `HookContext`,
+- ``api`` — `Plugin`, `HookName`, `HookContext`,
   `PLUGIN_ENTRY_POINT`, `PLUGIN_ENV_VAR`.
-- :mod:`tn_venv.plugins.registry` — `HookRegistry`, `DEFAULT_PRIORITY`.
-- :mod:`tn_venv.plugins.loader` — `load_plugins`, `parse_plugin_spec`,
+- ``registry`` — `HookRegistry`, `DEFAULT_PRIORITY`.
+- ``loader`` — `load_plugins`, `parse_plugin_spec`,
   `require_plugin`.
-- :mod:`tn_venv.plugins.builtin` — `VersionStampPlugin`.
+- ``builtin`` — `VersionStampPlugin`.

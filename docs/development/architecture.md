@@ -86,10 +86,10 @@ environment being built).
 The session pipeline emits five events at well-defined points:
 `session_start`, `pre_create`, `post_activators`, `post_seed`, and
 `session_end`. Each callback receives a
-:class:`~tn_venv.plugins.HookContext` and may mutate `ctx.data` (to
+``HookContext`` and may mutate `ctx.data` (to
 share scratch state with later hooks of the same run) or `ctx.result`
 (during `session_end` only). Plugins are loaded before step 1 by
-:func:`~tn_venv.plugins.load_plugins`, which consults the built-in
+``load_plugins``, which consults the built-in
 registry, the `tn_venv.plugins` entry-point group, and the
 `TN_VENV_PLUGINS` environment variable in that order; duplicates are
 deduplicated by class. See {doc}`../guide/plugins` for the user-facing
