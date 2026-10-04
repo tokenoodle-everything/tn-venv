@@ -18,6 +18,7 @@ executable = C:\Python314\python.exe
 base-executable = C:\Python314\python.exe
 command = C:\Python314\python.exe -m tn_venv .venv --prompt my-project
 tn-venv = your.release.version
+tn-venv-version = your.release.version
 ```
 
 ## Standard keys
@@ -39,6 +40,7 @@ tn-venv = your.release.version
 | `base-executable` | path to `sys._base_executable` — the binary that was actually copied or linked |
 | `command` | the full command line that created the environment, for forensics and reproduction |
 | `tn-venv` | the version of tn-venv that created the environment |
+| `tn-venv-version` | the version of tn-venv that created by plugin `VersionStampPlugin` |
 
 ```{note}
 `home` points at the *directory* of the base executable, per PEP 405;
