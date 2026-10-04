@@ -2,165 +2,128 @@
 # for further details about the .github/CODEOWNERS file.
 
 # It uses the same pattern rule for gitignore file
-# https://git-scm.com/docs/gitignore#_pattern_format
+# https://git‑scm.com/docs/gitignore#_pattern_format
 # Notably, a later match overrides earlier matches, so order matters.
 # If using a wildcard pattern, try to be as specific as possible to avoid
 # matching unintended files or overriding previous entries.
 # To exclude a file from ownership, add a line with only the file.
 # See the exclusions section at the end of the file for examples.
 
-# This file is by aiwonderland in 2026-10-04. (Version 1)
+# This file is maintained by aiwonderland, created 2026‑10‑04. (Version 1)
 
 # ------
 # Meta
 # ------
-
-# .gitignore is by aiwonderland
-.gitignore                                      @tokenoodle-everything/meta @aiwonderland
-
-# Meta License is in repo tokenoodle-everything/organization-license
-License.txt                                     @tokenoodle-everything/meta
-
-# Maintained by tokenoodle-everything/meta
-CONTRIBUTORS                                    @tokenoodle-everything/meta
-
-# Maintained by tokenoodle-everything/meta and tokenoodle-everything/docs, by aiwonderland
-docs/conf.py                                    @tokenoodle-everything/meta @tokenoodle-everything/docs @aiwonderland
-
-# something ...?
-docs/CNAME                                      @tokenoodle-everything/meta    
-docs/make.bat                                   @tokenoodle-everything/meta       
-docs/Makefile                                   @tokenoodle-everything/meta       
-docs/requirements.txt                           @tokenoodle-everything/meta               
-
-tests/conftest.py                               @tokenoodle-everything/meta @aiwonderland @tokenoodle-everything/developers
-
-# .vscode/ settings is by aiwonderland
-.vscode/                                        @tokenoodle-everything/meta
-
-pyproject.toml                                  @tokenoodle-everything/maintainers
+.gitignore                                      @tokenoodle‑everything/meta @aiwonderland
+License.txt                                     @tokenoodle‑everything/meta
+CONTRIBUTORS                                    @tokenoodle‑everything/meta
+docs/conf.py                                    @tokenoodle‑everything/meta @tokenoodle‑everything/docs @aiwonderland
+docs/CNAME                                      @tokenoodle‑everything/meta
+docs/make.bat                                   @tokenoodle‑everything/meta
+docs/Makefile                                   @tokenoodle‑everything/meta
+docs/requirements.txt                           @tokenoodle‑everything/meta
+tests/conftest.py                               @tokenoodle‑everything/meta @aiwonderland @tokenoodle‑everything/developers
+.vscode/                                        @tokenoodle‑everything/meta
+pyproject.toml                                  @tokenoodle‑everything/maintainers
 
 # ------
 # Github configs
 # ------
-
-# base
-.github/dependabot.yml                           @tokenoodle-everything/meta
-.github/FUNDING.yml                              @tokenoodle-everything/meta
-.github/CODEOWNERS                               @tokenoodle-everything/maintainers
-.github/PULL_REQUEST_TEMPLATE.md                 @tokenoodle-everything/meta @tokenoodle-everything/docs
+.github/dependabot.yml                           @tokenoodle‑everything/meta
+.github/FUNDING.yml                              @tokenoodle‑everything/meta
+.github/CODEOWNERS                               @tokenoodle‑everything/maintainers
+.github/PULL_REQUEST_TEMPLATE.md                 @tokenoodle‑everything/meta @tokenoodle‑everything/docs
 
 # workflows
 .github/workflows/runtests.yml                    @aiwonderland
-.github/workflows/docs.yml                        @tokenoodle-everything/meta @aiwonderland @tokenoodle-everything/developers
-.github/workflows/mypy-typecheck.yml              @tokenoodle-everything/developers @tokenoodle-everything/meta 
-.github/workflows/pyrefly-typecheck.yml           @tokenoodle-everything/developers @tokenoodle-everything/meta
+.github/workflows/docs.yml                        @tokenoodle‑everything/meta @aiwonderland @tokenoodle‑everything/developers
+.github/workflows/mypy‑typecheck.yml              @tokenoodle‑everything/developers @tokenoodle‑everything/meta
+.github/workflows/pyrefly‑typecheck.yml           @tokenoodle‑everything/developers @tokenoodle‑everything/meta
 
 # issue templates
-.github/ISSUE_TEMPLATE/BugReport.md               @tokenoodle-everything/docs @tokenoodle-everything/developers
-.github/ISSUE_TEMPLATE/Documentation.md           @tokenoodle-everything/docs @tokenoodle-everything/developers
-.github/ISSUE_TEMPLATE/FeatureRequest.md          @tokenoodle-everything/docs @tokenoodle-everything/developers
-.github/ISSUE_TEMPLATE/config.yml                 @tokenoodle-everything/meta
+.github/ISSUE_TEMPLATE/BugReport.md               @tokenoodle‑everything/docs @tokenoodle‑everything/developers
+.github/ISSUE_TEMPLATE/Documentation.md           @tokenoodle‑everything/docs @tokenoodle‑everything/developers
+.github/ISSUE_TEMPLATE/FeatureRequest.md          @tokenoodle‑everything/docs @tokenoodle‑everything/developers
+.github/ISSUE_TEMPLATE/config.yml                 @tokenoodle‑everything/meta
 
 # ------
 # Base meta documentation
 # ------
-
-README.md                                         @aiwonderland @tokenoodle-everything/maintainers
-
-# base documentation
-SECURITY.md                                       @tokenoodle-everything/meta @tokenoodle-everything/docs
-SUPPORT.md                                        @tokenoodle-everything/meta @tokenoodle-everything/docs
-CODE_OF_CONDUCT.md                                @tokenoodle-everything/meta @tokenoodle-everything/docs
-
-# can ignore, to small
-CHANGELOG.md                                      @tokenoodle-everything/meta @tokenoodle-everything/docs
-
-# Refactor file by q-iuyrwerty, first by aiwonderland
-CONTRIBUTING.md                                   @q-iuyrwerty
+README.md                                         @aiwonderland @tokenoodle‑everything/maintainers
+SECURITY.md                                       @tokenoodle‑everything/meta @tokenoodle‑everything/docs
+SUPPORT.md                                        @tokenoodle‑everything/meta @tokenoodle‑everything/docs
+CODE_OF_CONDUCT.md                                @tokenoodle‑everything/meta @tokenoodle‑everything/docs
+CHANGELOG.md                                      @tokenoodle‑everything/meta @tokenoodle‑everything/docs
+# Refactored by q‑iuyrwerty; originally authored by aiwonderland
+CONTRIBUTING.md                                   @q‑iuyrwerty
 
 # ------
 # Main code
 # ------
-
-# base
-tn_venv/__init__.py                               @tokenoodle-everything/developers @aiwonderland
-tn_venv/__main__.py                               @tokenoodle-everything/developers
-tn_venv/py.typed                                  @tokenoodle-everything/meta
+tn_venv/__init__.py                               @tokenoodle‑everything/developers @aiwonderland
+tn_venv/__main__.py                               @tokenoodle‑everything/developers
+tn_venv/py.typed                                  @tokenoodle‑everything/meta
 tn_venv/cli.py                                    @aiwonderland
 tn_venv/errors.py                                 @aiwonderland
 tn_venv/report.py                                 @aiwonderland
 tn_venv/session.py                                @aiwonderland
-tn_venv/version.py                                @tokenoodle-everything/developers
+tn_venv/version.py                                @tokenoodle‑everything/developers
 
 # config submodule
-tn_venv/config/__init__.py                        @tokenoodle-everything/developers @aiwonderland
-tn_venv/config/loader.py                          @aiwonderland
-tn_venv/config/spec.py                            @aiwonderland
+tn_venv/loader.py                                 @aiwonderland
+tn_venv/spec.py                                   @aiwonderland
 
 # create submodule
-tn_venv/create/__init__.py                        @tokenoodle-everything/developers @aiwonderland
+tn_venv/create/__init__.py                        @tokenoodle‑everything/developers @aiwonderland
 tn_venv/create/context.py                         @aiwonderland
 tn_venv/create/creator.py                         @aiwonderland
 
-# activators all in here
-tn_venv/create/activators/__init__.py             @tokenoodle-everything/developers @aiwonderland
-
-# base
+# activators
+tn_venv/create/activators/__init__.py             @tokenoodle‑everything/developers @aiwonderland
 tn_venv/create/activators/base.py                 @aiwonderland
-                                                  
-# Maintained by tokenoodle-everything/windows-dev and tokenoodle-everything/POSIX-dev
 
-# POSIX platforms (Linux and macOS)
-tn_venv/create/activators/bash.py                 @tokenoodle-everything/POSIX-dev 
-tn_venv/create/activators/csh.py                  @tokenoodle-everything/POSIX-dev  
-tn_venv/create/activators/fish.py                 @tokenoodle-everything/POSIX-dev   
+# POSIX‑only activators (Linux and macOS)
+tn_venv/create/activators/bash.py                 @tokenoodle‑everything/POSIX‑dev
+tn_venv/create/activators/csh.py                  @tokenoodle‑everything/POSIX‑dev
+tn_venv/create/activators/fish.py                 @tokenoodle‑everything/POSIX‑dev
 
-# Windows 
-tn_venv/create/activators/batch.py                @tokenoodle-everything/windows-dev  
-tn_venv/create/activators/powershell.py           @tokenoodle-everything/windows-dev    
- 
-# cross‑platform
-tn_venv/create/activators/nushell.py              @tokenoodle-everything/developers     
-tn_venv/create/activators/python_activate.py      @tokenoodle-everything/developers    
+# Windows‑only activators
+tn_venv/create/activators/batch.py                @tokenoodle‑everything/windows‑dev
+tn_venv/create/activators/powershell.py           @tokenoodle‑everything/windows‑dev
+
+# Cross‑platform activators
+tn_venv/create/activators/nushell.py              @tokenoodle‑everything/developers
+tn_venv/create/activators/python_activate.py      @tokenoodle‑everything/developers
 
 # discovery submodule
-tn_venv/discovery/__init__.py                     @tokenoodle-everything/developers @aiwonderland
+tn_venv/discovery/__init__.py                     @tokenoodle‑everything/developers @aiwonderland
 tn_venv/discovery/providers.py                    @aiwonderland
-tn_venv/discovery/py_launcher.py                  @aiwonderland   
-tn_venv/discovery/python_info.py                  @aiwonderland      
-tn_venv/discovery/query.py                        @aiwonderland    
-tn_venv/discovery/windows_registry.py             @aiwonderland 
+tn_venv/discovery/py_launcher.py                  @aiwonderland
+tn_venv/discovery/python_info.py                  @aiwonderland
+tn_venv/discovery/query.py                        @aiwonderland
+tn_venv/discovery/windows_registry.py             @aiwonderland
 
-# plugins submodule
-tn_venv/plugins/                                  @aiwonderland 
-
-# seed submodule
+# plugins / seed / util submodules
+tn_venv/plugins/                                  @aiwonderland
 tn_venv/seed/                                     @aiwonderland
-
-# util submodule
-tn_venv/util/__init__.py                          @tokenoodle-everything/developers @aiwonderland 
-tn_venv/util/lock.py                              @aiwonderland @tokenoodle-everything/developers
-tn_venv/util/path.py                              @tokenoodle-everything/windows-dev @tokenoodle-everything/POSIX-dev 
+tn_venv/util/__init__.py                          @tokenoodle‑everything/developers @aiwonderland
+tn_venv/util/lock.py                              @aiwonderland @tokenoodle‑everything/developers
+tn_venv/util/path.py                              @tokenoodle‑everything/windows‑dev @tokenoodle‑everything/POSIX‑dev
 tn_venv/util/process.py                           @aiwonderland
 
 # ------
 # Tests
 # ------
-
-tests/                                            @tokenoodle-everything/maintainers @tokenoodle-everything/developers @tokenoodle-everything/windows-dev @tokenoodle-everything/POSIX-dev 
+tests/                                            @tokenoodle‑everything/maintainers @tokenoodle‑everything/developers @tokenoodle‑everything/windows‑dev @tokenoodle‑everything/POSIX‑dev
 
 # ------
 # Documentation
 # ------
-
-docs/changelog.md                                @tokenoodle-everything/docs
-docs/index.md                                    @tokenoodle-everything/docs
-docs/getting-started/                            @aiwonderland @tokenoodle-everything/docs
-docs/guide/                                      @tokenoodle-everything/docs  
-docs/reference/                                  @tokenoodle-everything/docs      
-docs/development/                                @tokenoodle-everything/docs     
-
-# empty dir
-docs/_static/                                    @tokenoodle-everything/docs     
-docs/_templates/                                 @tokenoodle-everything/docs      
+docs/changelog.md                                @tokenoodle‑everything/docs
+docs/index.md                                    @tokenoodle‑everything/docs
+docs/getting‑started/                            @aiwonderland @tokenoodle‑everything/docs
+docs/guide/                                      @tokenoodle‑everything/docs
+docs/reference/                                  @tokenoodle‑everything/docs
+docs/development/                                @tokenoodle‑everything/docs
+docs/_static/                                    @tokenoodle‑everything/docs
+docs/_templates/                                 @tokenoodle‑everything/docs
