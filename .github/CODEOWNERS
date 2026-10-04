@@ -94,9 +94,9 @@ tn_venv/session.py                                @aiwonderland
 tn_venv/version.py                                @tokenoodle-everything/developers
 
 # config submodule
-tn_venv/__init__.py                               @tokenoodle-everything/developers @aiwonderland
-tn_venv/loader.py                                 @aiwonderland
-tn_venv/spec.py                                   @aiwonderland
+tn_venv/config/__init__.py                        @tokenoodle-everything/developers @aiwonderland
+tn_venv/config/loader.py                          @aiwonderland
+tn_venv/config/spec.py                            @aiwonderland
 
 # create submodule
 tn_venv/create/__init__.py                        @tokenoodle-everything/developers @aiwonderland
