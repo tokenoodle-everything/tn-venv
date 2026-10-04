@@ -16,7 +16,7 @@ from ..report import Reporter, SILENT
 from .api import HookContext, HookFn, HookName
 
 if TYPE_CHECKING:
-    from .builtin import Plugin
+    from .api import Plugin
 
 DEFAULT_PRIORITY = 100
 

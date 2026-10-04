@@ -21,6 +21,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   hook semantics, and writing a plugin. The architecture and
   environment-variables references were updated to point at it.
 
+### Fixed
+- Fix the import for the `Plugin` class referenced in type annotations within the 
+file `tn_venv/plugins/registry.py`. Change its import source from the 
+`tn_venv.plugins.builtin`  module back to the original `tn_venv.plugins.api` module.
+
 ## [0.2.0] — 2026-10-02
 
 ### Added
