@@ -9,8 +9,8 @@
 project = "tn-venv"
 copyright = "2026, tokenoodle-everything"
 author = "tokenoodle-everything"
-release = "0.2.0"
-version = "0.2.2"
+release = "1.0.0"
+version = "1.0.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

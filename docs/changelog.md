@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-10-05
+
 ### Added
 - Plugin system under `tn_venv.plugins`: a `Plugin` base class, a
   priority-ordered `HookRegistry`, and a `load_plugins` loader that
