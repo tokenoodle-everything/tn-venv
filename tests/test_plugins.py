@@ -1,10 +1,9 @@
-﻿"""Tests for the plugin system: registry, loader, and pipeline integration."""
+"""Tests for the plugin system: registry, loader, and pipeline integration."""
 
 from __future__ import annotations
 
 import sys
 import types
-from importlib import metadata
 from pathlib import Path
 
 import pytest
@@ -14,16 +13,11 @@ from tn_venv.plugins import (
     HookContext,
     HookName,
     HookRegistry,
-    PLUGIN_ENTRY_POINT,
     PLUGIN_ENV_VAR,
     Plugin,
     load_plugins,
     parse_plugin_spec,
     require_plugin,
-)
-from tn_venv.plugins.loader import (
-    _iter_entry_points,
-    _resolve_target,
 )
 from tn_venv.report import Reporter
 
@@ -230,8 +224,7 @@ def test_load_plugins_from_env_class_reference(
         env={PLUGIN_ENV_VAR: f"{name}:_B"},
     )
     assert any(
-        fn.__name__ == "<lambda>"
-        for fn in registry.listeners(HookName.SESSION_END)
+        fn.__name__ == "<lambda>" for fn in registry.listeners(HookName.SESSION_END)
     )
 
 
@@ -306,33 +299,25 @@ def test_loader_loads_every_class_in_plugins_list(
         name = "multi_a"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.SESSION_START, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.SESSION_START, lambda c: None, plugin_name=self.name)
 
     class _B(Plugin):
         name = "multi_b"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.SESSION_START, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.SESSION_START, lambda c: None, plugin_name=self.name)
 
     class _C(Plugin):
         name = "multi_c"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.SESSION_START, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.SESSION_START, lambda c: None, plugin_name=self.name)
 
     mod = types.ModuleType(name)
     mod.PLUGINS = [_A, _B, _C]
     sys.modules[name] = mod
 
-    registry = load_plugins(
-        Reporter(verbosity=0), env={PLUGIN_ENV_VAR: name}
-    )
+    registry = load_plugins(Reporter(verbosity=0), env={PLUGIN_ENV_VAR: name})
     names = {l.plugin_name for l in registry._listeners[HookName.SESSION_START]}  # type: ignore[attr-defined]
     # All three plugin names must appear in the listener list.
     assert {"multi_a", "multi_b", "multi_c"}.issubset(names)
@@ -358,18 +343,14 @@ def test_loader_skips_abstract_base_classes(
         name = "concrete_only"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.PRE_CREATE, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.PRE_CREATE, lambda c: None, plugin_name=self.name)
 
     mod = types.ModuleType(name)
     mod._Base = _Base
     mod._Concrete = _Concrete
     sys.modules[name] = mod
 
-    registry = load_plugins(
-        Reporter(verbosity=0), env={PLUGIN_ENV_VAR: name}
-    )
+    registry = load_plugins(Reporter(verbosity=0), env={PLUGIN_ENV_VAR: name})
     # Exactly one PRE_CREATE listener, registered by _Concrete.
     assert registry.listener_count(HookName.PRE_CREATE) == 1
 
@@ -389,17 +370,13 @@ def test_loader_entry_point_to_module_loads_all_plugins(
         name = "mod_ep_a"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.SESSION_END, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.SESSION_END, lambda c: None, plugin_name=self.name)
 
     class _ModuleB(Plugin):
         name = "mod_ep_b"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.SESSION_END, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.SESSION_END, lambda c: None, plugin_name=self.name)
 
     mod = types.ModuleType("tn_venv_tests_ep_module")
     mod.PLUGINS = [_ModuleA, _ModuleB]
@@ -444,17 +421,13 @@ def test_loader_comma_separated_env_loads_every_spec(
         name = "spec_a"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.POST_SEED, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.POST_SEED, lambda c: None, plugin_name=self.name)
 
     class _B(Plugin):
         name = "spec_b"
 
         def register(self, hooks):
-            hooks.add(
-                HookName.POST_SEED, lambda c: None, plugin_name=self.name
-            )
+            hooks.add(HookName.POST_SEED, lambda c: None, plugin_name=self.name)
 
     mod_a = types.ModuleType(name_a)
     mod_a._A = _A
@@ -472,7 +445,6 @@ def test_loader_comma_separated_env_loads_every_spec(
         for l in registry._listeners[HookName.POST_SEED]  # type: ignore[attr-defined]
     }
     assert {"spec_a", "spec_b"}.issubset(names)
-
 
 
 # -- pipeline integration ---------------------------------------------------
@@ -555,7 +527,9 @@ def test_run_session_emits_every_hook(
         def register(self, hooks):
             hooks.add(HookName.SESSION_START, lambda c: fired.append("session_start"))
             hooks.add(HookName.PRE_CREATE, lambda c: fired.append("pre_create"))
-            hooks.add(HookName.POST_ACTIVATORS, lambda c: fired.append("post_activators"))
+            hooks.add(
+                HookName.POST_ACTIVATORS, lambda c: fired.append("post_activators")
+            )
             hooks.add(HookName.POST_SEED, lambda c: fired.append("post_seed"))
             hooks.add(HookName.SESSION_END, lambda c: fired.append("session_end"))
 
@@ -663,3 +637,148 @@ def test_run_session_exposes_cfg_path_and_scripts_to_plugins(
     assert captured["cfg_path"] == env_dir / "pyvenv.cfg"
     assert captured["scripts"] == []
 
+
+# -- Loader provenance (PluginSource + owner map) --------------------------
+
+
+def test_load_plugins_tags_each_plugin_with_source(
+    _clean_plugin_modules: list[str],
+) -> None:
+    """Every loaded plugin carries a PluginSource via _tn_venv_source."""
+    name = "tn_venv_tests_source_tag"
+    _clean_plugin_modules.append(name)
+
+    class _A(Plugin):
+        name = "tagged_a"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.SESSION_START, lambda c: None, plugin_name=self.name
+            )
+
+    mod = types.ModuleType(name)
+    mod._A = _A
+    sys.modules[name] = mod
+
+    registry = load_plugins(
+        Reporter(verbosity=0), env={PLUGIN_ENV_VAR: f"{name}:_A"}
+    )
+    # Find our plugin by name; the loader may have other plugins
+    # (built-ins, third-party entry points) loaded too.
+    owners = list(registry._owners.values())  # type: ignore[attr-defined]
+    mine = [p for p in owners if isinstance(p, _A)]
+    assert mine, "loader did not register _A in the owner map"
+    plugin = mine[0]
+    assert plugin._tn_venv_source.kind == "env"  # type: ignore[attr-defined]
+    assert plugin._tn_venv_source.spec == PLUGIN_ENV_VAR  # type: ignore[attr-defined]
+
+
+def test_register_with_owner_recovers_owner_for_decorator_form() -> None:
+    """The owner map also works for plugins using @hooks.add as a decorator."""
+    from tn_venv.plugins.loader import _register_with_owner
+    from tn_venv.plugins.registry import HookRegistry
+
+    class _DecoratorPlugin(Plugin):
+        name = "deco_owner"
+
+        def register(self, hooks):
+            @hooks.add(HookName.SESSION_START, plugin_name=self.name)
+            def _cb(ctx):
+                pass
+
+    reg = HookRegistry()
+    plugin = _DecoratorPlugin()
+    _register_with_owner(reg, plugin)
+
+    listener = reg._listeners[HookName.SESSION_START][0]  # type: ignore[attr-defined]
+    assert reg._owners[id(listener.fn)] is plugin  # type: ignore[attr-defined]
+
+
+def test_register_with_owner_restores_registry_on_exception() -> None:
+    """A plugin that raises during register() must not break the registry."""
+    from tn_venv.plugins.loader import _register_with_owner
+    from tn_venv.plugins.registry import HookRegistry
+
+    class _Boom(Plugin):
+        name = "boom"
+
+        def register(self, hooks):
+            hooks.add(HookName.SESSION_START, lambda c: None)
+            raise RuntimeError("boom")
+
+    reg = HookRegistry()
+    with pytest.raises(RuntimeError):
+        _register_with_owner(reg, _Boom())
+
+    # The registry must remain usable: the listener from before the
+    # raise is still there, and a subsequent add() must work.
+    assert reg.listener_count(HookName.SESSION_START) == 1
+    reg.add(HookName.SESSION_START, lambda c: None)
+    assert reg.listener_count(HookName.SESSION_START) == 2
+
+
+def test_register_with_owner_swallows_attribute_errors() -> None:
+    """A plugin with __slots__ that disallows _tn_venv_source must not crash."""
+
+    class _Slotty:
+        __slots__ = ("name",)
+
+        def __init__(self):
+            self.name = "slotty"
+
+    # Direct invocation: the tag-source helper shouldn't blow up.
+    from tn_venv.plugins.loader import _tag_source, PluginSource
+
+    plugin = _Slotty()
+    _tag_source(plugin, PluginSource(kind="env", spec="TN_VENV_PLUGINS"))
+    # _tn_venv_source was not set (slots disallow it); that's fine.
+    assert not hasattr(plugin, "_tn_venv_source")
+
+
+def test_register_with_owner_tracks_hookless_plugins() -> None:
+    """A plugin that adds no hooks still shows up in _hookless_plugins.
+
+    This is what makes plugins like ``GuiSubcommandPlugin`` (CLI shims)
+    discoverable via ``tn-venv --list-plugins``: their ``register()``
+    side-effects the host but never calls ``hooks.add(...)``.
+    """
+    from tn_venv.plugins.loader import _register_with_owner
+    from tn_venv.plugins.registry import HookRegistry
+
+    class _Shim(Plugin):
+        name = "shim"
+
+        def register(self, hooks):
+            # No hooks.add — just a side effect (e.g. monkey-patch).
+            return
+
+    reg = HookRegistry()
+    _register_with_owner(reg, _Shim())
+
+    assert reg._hookless_plugins  # type: ignore[attr-defined]
+    assert isinstance(reg._hookless_plugins[0], _Shim)  # type: ignore[attr-defined]
+    # No real listener was added, so owners should still be empty.
+    assert reg._owners == {}  # type: ignore[attr-defined]
+
+
+def test_register_with_owner_dedupes_when_plugin_adds_hooks_then_none() -> None:
+    """A plugin that adds hooks first and a sentinel later is recorded once.
+
+    Mixed behaviour shouldn't cause the same instance to appear in
+    both ``_owners`` and ``_hookless_plugins``.
+    """
+    from tn_venv.plugins.loader import _register_with_owner
+    from tn_venv.plugins.registry import HookRegistry
+
+    class _Mixed(Plugin):
+        name = "mixed"
+
+        def register(self, hooks):
+            hooks.add(HookName.SESSION_START, lambda c: None, plugin_name=self.name)
+
+    reg = HookRegistry()
+    _register_with_owner(reg, _Mixed())
+
+    assert reg._owners  # type: ignore[attr-defined]
+    # ``setdefault`` keeps the hookful entry from being clobbered.
+    assert reg._hookless_plugins == []  # type: ignore[attr-defined]

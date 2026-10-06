@@ -54,6 +54,12 @@ receives a single ``HookContext``.
 | `POST_ACTIVATORS` | after every activation script has been written | `cfg_path`, `env_dir`, `scripts` |
 | `POST_SEED` | after the seeder finishes (or skips) | `cfg_path`, `env_dir`, `scripts`, `seed_result` |
 | `SESSION_END` | last, just before `run_session` returns | all of the above plus `result` (a `SessionResult`) |
+| `HELP_EPILOG` | when `tn-venv --help` is rendered (CLI only) | n/a — listener returns a string instead of mutating `ctx` |
+
+The five lifecycle hooks fire during `run_session`; `HELP_EPILOG` is
+special: it runs only when the user asks for help, has no `HookContext`
+argument, and the listener returns the text to append to the help
+output. See {ref}`help-epilog-hook` below.
 
 Hooks are *additive*: every registered callback runs. A listener that
 raises is logged at warning level but does not abort the pipeline.
@@ -163,6 +169,50 @@ release.
 `ctx.options` may be `None` for hooks fired outside a real session
 (some test paths or programmatic invocations). Always check or use
 `getattr(ctx, "options", None)`.
+
+(help-epilog-hook)=
+### Customizing `tn-venv --help`
+
+The `HELP_EPILOG` hook lets a plugin append text to `tn-venv --help`
+output **without monkey-patching `argparse`**. Unlike the lifecycle
+hooks, the listener takes no arguments and returns a string:
+
+```python
+from tn_venv.plugins import HookName, Plugin
+
+
+class HelpAdder(Plugin):
+    name = "help_adder"
+
+    def register(self, hooks):
+        def _epilog():
+            return (
+                "optional subcommands provided by help_adder:\n"
+                "  mycmd    run my custom command"
+            )
+
+        hooks.add(HookName.HELP_EPILOG, _epilog, plugin_name=self.name)
+```
+
+A few rules of thumb:
+
+- The listener must return a `str` (or `None` to opt out). Returning
+  an empty string contributes nothing.
+- tn-venv automatically appends a `Plugins:` block listing every
+  loaded plugin and the hooks it registered. You don't need to do
+  this yourself — `HELP_EPILOG` is only for *extra* text the
+  plugin wants to advertise (subcommand menus, examples, status
+  pages, etc.).
+- Plugins are loaded **lazily** for help rendering: a normal
+  `tn-venv .venv` invocation never triggers `load_plugins()`. Only
+  `--help` does. So `HELP_EPILOG` listeners can do non-trivial work
+  (e.g. query an upstream service) without slowing down creation.
+- Listener failures are caught and reported at warning level; they
+  never break `--help`.
+
+The legacy way to do this was to monkey-patch `build_parser` and
+append to `parser.epilog`. New plugins should prefer `HELP_EPILOG` —
+it's stable, public, and doesn't depend on argparse internals.
 
 ## Reference
 

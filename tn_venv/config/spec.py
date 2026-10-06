@@ -231,6 +231,14 @@ SPECS: tuple[OptionSpec, ...] = (
         cli_only=True,
     ),
     OptionSpec(
+        "list_plugins",
+        ("--list-plugins",),
+        kind="bool",
+        default=False,
+        help="list every plugin loaded for this invocation and exit",
+        cli_only=True,
+    ),
+    OptionSpec(
         "dry_run",
         ("--dry-run",),
         kind="bool",

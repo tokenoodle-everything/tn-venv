@@ -39,6 +39,16 @@ class HookRegistry:
     def __init__(self, reporter: Reporter | None = None) -> None:
         self._reporter: Reporter = reporter if reporter is not None else SILENT
         self._listeners: dict[HookName, list[_Listener]] = {h: [] for h in HookName}
+        #: Optional back-reference to the :class:`Plugin` instance that
+        #: registered a given listener. Populated by :func:`load_plugins`
+        #: so introspection helpers (e.g. ``tn-venv --list-plugins``)
+        #: can recover the source tag without crawling the call stack.
+        self._owners: dict[int, object] = {}
+        #: Plugins whose :meth:`Plugin.register` ran but registered no
+        #: hooks. Populated by :func:`load_plugins`; used so listing
+        #: helpers can surface side-effect-only plugins (CLI shims,
+        #: post-create hooks, …) that would otherwise be invisible.
+        self._hookless_plugins: list[object] = []
 
     # -- registration -------------------------------------------------------
     def add(
@@ -124,6 +134,35 @@ class HookRegistry:
                 )
                 reporter.warn(f"plugin hook {h.value!r} raised in {src}: {exc}")
         return ctx
+
+    def collect_help_epilog(self) -> str:
+        """Concatenate every HELP_EPILOG listener's return value.
+
+        Listeners for :attr:`HookName.HELP_EPILOG` differ from the
+        lifecycle hooks: they take no arguments and return a string
+        (or ``None`` to opt out). The strings are joined with blank
+        lines between them. Failing listeners are warned about via
+        the reporter and contribute nothing — same fault-isolation
+        contract as :meth:`emit`.
+        """
+        h = HookName.HELP_EPILOG
+        parts: list[str] = []
+        for listener in self._listeners[h]:
+            try:
+                result = listener.fn()
+            except Exception as exc:  # noqa: BLE001
+                src = (
+                    f"{listener.plugin_name}.{listener.fn.__qualname__}"
+                    if listener.plugin_name
+                    else listener.fn.__qualname__
+                )
+                self._reporter.warn(
+                    f"plugin hook {h.value!r} raised in {src}: {exc}"
+                )
+                continue
+            if result:
+                parts.append(str(result).rstrip())
+        return "\n\n".join(parts)
 
     @staticmethod
     def _resolve(hook: HookName | str) -> HookName:

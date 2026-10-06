@@ -28,7 +28,7 @@ environment being built).
 
 | Module | Responsibility |
 |---|---|
-| `tn_venv.cli` | argument parsing, config layering, exit codes, `--list-pythons`, `--dry-run` |
+| `tn_venv.cli` | argument parsing, config layering, exit codes, `--list-pythons`, `--list-plugins`, `--dry-run` |
 | `tn_venv.config.spec` | the single source of truth for every option (`OPTION_SPECS`) |
 | `tn_venv.config.loader` | TOML/INI/env-var loading and coercion |
 | `tn_venv.session` | `Options`, the pipeline, `SessionResult`, the public `create_venv()` |

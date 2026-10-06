@@ -119,7 +119,9 @@ def load_file_config(path: Path | None) -> dict[str, Any]:
     return _map_keys(raw, source=str(path))
 
 
-def _map_keys(raw: dict[str, Any], *, source: str) -> dict[str, Any]:  # FIXME: source parameter dosn't used
+def _map_keys(
+    raw: dict[str, Any], *, source: str
+) -> dict[str, Any]:  # FIXME: source parameter dosn't used
     """Translate config keys (kebab-case) into option dests with coercion."""
     by_config_key = {
         spec.config_key: spec for spec in OPTION_SPECS.values() if not spec.cli_only

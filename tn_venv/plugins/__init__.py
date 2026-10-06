@@ -35,7 +35,7 @@ from .api import (
     Plugin,
 )
 from .builtin import VersionStampPlugin
-from .loader import load_plugins, parse_plugin_spec, require_plugin
+from .loader import PluginSource, load_plugins, parse_plugin_spec, require_plugin
 from .registry import DEFAULT_PRIORITY, HookRegistry
 
 __all__ = [
@@ -47,9 +47,9 @@ __all__ = [
     "DEFAULT_PRIORITY",
     "PLUGIN_ENTRY_POINT",
     "PLUGIN_ENV_VAR",
+    "PluginSource",
     "VersionStampPlugin",
     "load_plugins",
     "parse_plugin_spec",
     "require_plugin",
 ]
-

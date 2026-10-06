@@ -57,6 +57,7 @@ class HookName(str, Enum):
     POST_ACTIVATORS = "post_activators"
     POST_SEED = "post_seed"
     SESSION_END = "session_end"
+    HELP_EPILOG = "help_epilog"
 
 
 #: Canonical entry-point group for third-party plugins. A ``pyproject.toml``

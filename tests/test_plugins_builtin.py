@@ -1,4 +1,4 @@
-﻿"""Tests for the built-in VersionStampPlugin."""
+"""Tests for the built-in VersionStampPlugin."""
 
 from __future__ import annotations
 
@@ -125,9 +125,7 @@ def test_version_stamp_reports_warning_on_oserror(
     def _boom(_cfg_path, _version):
         raise OSError("permission denied")
 
-    monkeypatch.setattr(
-        "tn_venv.plugins.builtin._append_version_line", _boom
-    )
+    monkeypatch.setattr("tn_venv.plugins.builtin._append_version_line", _boom)
     ctx = HookContext(data={"cfg_path": cfg}, reporter=reporter)
     _run_registrar()(ctx)
     # Should not raise; the reporter swallowed the failure.

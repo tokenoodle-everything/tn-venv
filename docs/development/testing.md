@@ -10,7 +10,7 @@ The suite lives in `tests/`, one module per source module:
 
 | Test module | Covers |
 |---|---|
-| `test_cli.py` | parsing, `--dry-run`, `--list-pythons`, exit codes |
+| `test_cli.py` | parsing, `--dry-run`, `--list-pythons`, `--list-plugins`, `--help` plugin block, exit codes |
 | `test_config_spec.py` | option specs and value coercion |
 | `test_config_loader.py` | TOML/INI/env loading, discovery order, precedence |
 | `test_discovery.py` | spec grammar, `discover()` paths |

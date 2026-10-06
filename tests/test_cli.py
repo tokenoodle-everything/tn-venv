@@ -29,7 +29,11 @@ def test_build_parser_all_specs_have_flags() -> None:
     parser = cli.build_parser()
     # every OptionSpec in OPTION_SPECS with flags should be reachable
     for spec in OPTION_SPECS.values():
-        if spec.cli_only is False and spec.flags and spec.dest != "list_pythons":
+        if (
+            spec.cli_only is False
+            and spec.flags
+            and spec.dest not in {"list_pythons", "list_plugins"}
+        ):
             try:
                 parser.parse_args([spec.flags[-1]])
             except SystemExit:
@@ -193,3 +197,204 @@ def test_resolve_options_no_config_disables_files(
     ns = parser.parse_args(["--no-config", "--dry-run", "/tmp/x"])
     opts = cli._resolve_options(ns)
     assert opts.clear is False  # file absent, no-config honoured
+
+
+# -- --list-plugins ---------------------------------------------------------
+
+
+def test_list_plugins_flag_is_parsed() -> None:
+    parser = cli.build_parser()
+    ns = parser.parse_args(["--list-plugins"])
+    assert ns.list_plugins is True
+
+
+def test_list_plugins_lists_loaded_plugins(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    rc = cli.cli_run(["--list-plugins"])
+    captured = capsys.readouterr()
+    # The output must mention the built-in version_stamp plugin.
+    assert "version_stamp" in captured.out
+    assert "post_activators" in captured.out
+    # rc may be 0 (plugins loaded) or 1 (only built-in counts as
+    # not-empty — and version_stamp is always loaded).
+    assert rc in (0, 1)
+
+
+def test_list_plugins_handles_empty_registry(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """When the loader yields no listeners, the flag returns 1 with a message."""
+
+    def _empty(reporter=None, *, env=None):
+        from tn_venv.plugins.registry import HookRegistry
+
+        return HookRegistry(reporter=reporter)
+
+    # _list_plugins imports ``load_plugins`` lazily, so patch it where
+    # it lives rather than on the cli module attribute.
+    monkeypatch.setattr("tn_venv.plugins.load_plugins", _empty)
+    rc = cli.cli_run(["--list-plugins"])
+    captured = capsys.readouterr()
+    assert rc == 1
+    assert "no plugins loaded" in captured.out
+
+
+def test_list_plugins_uses_owner_map_for_source(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The source line should reflect the PluginSource attached by the loader."""
+
+    from tn_venv.plugins.registry import HookRegistry
+    from tn_venv.report import Reporter
+
+    class _StubPlugin:
+        name = "stub"
+
+        def __init__(self):
+            from tn_venv.plugins.loader import PluginSource
+
+            self._tn_venv_source = PluginSource(
+                kind="entry-point", spec="stub=test"
+            )
+
+        def register(self, hooks):
+            from tn_venv.plugins import HookName
+
+            hooks.add(HookName.SESSION_START, lambda c: None, plugin_name=self.name)
+
+    def _stub_registry(reporter=None, *, env=None):
+        reg = HookRegistry(reporter=reporter or Reporter(verbosity=0))
+        from tn_venv.plugins.loader import _register_with_owner
+
+        _register_with_owner(reg, _StubPlugin())
+        return reg
+
+    monkeypatch.setattr("tn_venv.plugins.load_plugins", _stub_registry)
+    rc = cli.cli_run(["--list-plugins"])
+    captured = capsys.readouterr()
+    assert rc == 0
+    assert "stub" in captured.out
+    assert "entry-point: stub=test" in captured.out
+
+
+# -- --help plugin block ---------------------------------------------------
+
+
+def test_help_includes_loaded_plugins(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """``tn-venv --help`` must surface the loaded plugins block."""
+
+    from tn_venv.plugins.registry import HookRegistry
+    from tn_venv.report import Reporter
+
+    class _Helpful(Plugin):  # type: ignore[misc]  # noqa: F821
+        name = "helpful_demo"
+
+        def register(self, hooks):
+            from tn_venv.plugins import HookName
+
+            hooks.add(
+                HookName.SESSION_START,
+                lambda c: None,
+                plugin_name=self.name,
+            )
+
+    def _stub(reporter=None, *, env=None):
+        reg = HookRegistry(reporter=reporter or Reporter(verbosity=0))
+        from tn_venv.plugins.loader import _register_with_owner
+
+        _register_with_owner(reg, _Helpful())
+        return reg
+
+    monkeypatch.setattr("tn_venv.plugins.load_plugins", _stub)
+    with pytest.raises(SystemExit) as excinfo:
+        cli.cli_run(["--help"])
+    assert excinfo.value.code == 0
+    captured = capsys.readouterr()
+    assert "Plugins:" in captured.out
+    assert "helpful_demo" in captured.out
+    assert "session_start" in captured.out
+
+
+def test_help_plugin_block_is_lazy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The plugin loader must NOT run for non-help commands."""
+
+    from tn_venv.plugins.registry import HookRegistry
+
+    calls = {"n": 0}
+
+    def _counting(reporter=None, *, env=None):
+        calls["n"] += 1
+        return HookRegistry(reporter=reporter)
+
+    monkeypatch.setattr("tn_venv.plugins.load_plugins", _counting)
+    # Run a non-help command. We pick --list-pythons because it never
+    # triggers format_help. (The Registry has no listeners, so the
+    # loader is only called when --help is requested.)
+    cli.cli_run(["--list-pythons"])
+    assert calls["n"] == 0
+
+
+def test_collect_help_epilog_returns_empty_on_loader_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A broken plugin loader must not break --help."""
+
+    def _boom(reporter=None, *, env=None):
+        raise RuntimeError("loader exploded")
+
+    monkeypatch.setattr("tn_venv.plugins.load_plugins", _boom)
+    # If the loader raises, _collect_plugin_help_epilog swallows it
+    # and returns an empty string. format_help must still produce
+    # usable output.
+    text = cli._collect_plugin_help_epilog()
+    assert text == ""
+
+
+def test_help_epilog_hook_concatenates_listener_outputs(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Plugins that register HELP_EPILOG get their text appended."""
+
+    from tn_venv.plugins.registry import HookRegistry
+    from tn_venv.report import Reporter
+
+    class _EpilogPlugin(Plugin):  # type: ignore[misc]  # noqa: F821
+        name = "epilog_demo"
+
+        def register(self, hooks):
+            from tn_venv.plugins import HookName
+
+            def _epilog():
+                return "extras provided by epilog_demo:\n  thing one\n  thing two"
+
+            hooks.add(
+                HookName.HELP_EPILOG,
+                _epilog,
+                plugin_name=self.name,
+            )
+
+    def _stub(reporter=None, *, env=None):
+        reg = HookRegistry(reporter=reporter or Reporter(verbosity=0))
+        from tn_venv.plugins.loader import _register_with_owner
+
+        _register_with_owner(reg, _EpilogPlugin())
+        return reg
+
+    monkeypatch.setattr("tn_venv.plugins.load_plugins", _stub)
+    with pytest.raises(SystemExit):
+        cli.cli_run(["--help"])
+    captured = capsys.readouterr()
+    assert "extras provided by epilog_demo" in captured.out
+    assert "thing one" in captured.out
+    # The auto-generated Plugins: block still shows up.
+    assert "Plugins:" in captured.out
+    assert "epilog_demo" in captured.out
+
+
+# Late imports for the help-related tests
+from tn_venv.plugins import Plugin  # noqa: E402

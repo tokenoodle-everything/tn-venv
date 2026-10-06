@@ -6,6 +6,27 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `tn-venv --list-plugins` flag. Loads every plugin via the same
+  discovery path as `run_session` (built-ins + entry points +
+  `TN_VENV_PLUGINS`) and prints a table of plugin name, registered
+  hooks, and provenance. Hookless plugins (CLI shims, subcommand
+  installers, …) appear as `(no hooks)` so they are not silently
+  invisible.
+- `HookName.HELP_EPILOG` hook. Plugins can now append text to
+  `tn-venv --help` output via a public hook instead of monkey-
+  patching `argparse`. The listener takes no arguments and returns
+  a string; tn-venv appends it after an auto-generated `Plugins:`
+  block. Plugins are loaded lazily on `--help`, so the cost is paid
+  only when the user asks for help.
+- `PluginSource` dataclass exported from `tn_venv.plugins`. Every
+  loaded plugin instance now carries a `_tn_venv_source` attribute
+  describing where it came from (`built-in`,
+  `entry-point: NAME=SPEC`, or `env: TN_VENV_PLUGINS`).
+  `--list-plugins` consumes this; the attribute is private but the
+  dataclass is part of the public API for callers who want to
+  introspect plugins programmatically.
+
 ### Fixed
 - Plugin loader dropped every plugin past the first one. A module that
   declared `PLUGINS = [A, B, C]` only ever loaded `A`; the same bug
@@ -28,7 +49,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   literal `<code>~tn_venv.…</code>` (with the leading tilde) and
   provided no linkability.
 
-## [1.0.0] — 2026-10-05
+## [1.0.0] — 2026-10-05 — 2026-10-05
 
 ### Added
 - Plugin system under `tn_venv.plugins`: a `Plugin` base class, a
