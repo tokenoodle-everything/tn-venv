@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- Plugin loader dropped every plugin past the first one. A module that
+  declared `PLUGINS = [A, B, C]` only ever loaded `A`; the same bug
+  affected comma-separated entries in `TN_VENV_PLUGINS` and
+  entry points that pointed at modules rather than classes. The
+  loader now returns `list[Plugin]` from every code path
+  (`_from_module_attr`, `_from_entry_point`, `_resolve_target`) and
+  propagates them up to `load_plugins`.
+- `vars()` scan picked the first `Plugin` subclass it found, so a
+  module that defined `class _Base(Plugin)` followed by
+  `class Concrete(_Base)` loaded the empty-named base class instead
+  of the concrete one — a silent no-op that hid user plugins.
+  The scan now skips classes whose `name` is empty (the convention
+  for abstract / helper bases) and exposes a dedicated
+  `_scan_module_for_plugins` helper for the rule.
+- Replaced `:class:`~tn_venv.…`` cross-references in
+  `docs/guide/plugins.md` and `docs/development/architecture.md`
+  with plain inline code. The docs site does not configure
+  `sphinx.ext.autodoc`, so the references previously rendered as
+  literal `<code>~tn_venv.…</code>` (with the leading tilde) and
+  provided no linkability.
+
 ## [1.0.0] — 2026-10-05
 
 ### Added

@@ -288,6 +288,192 @@ def test_load_plugins_dedupes_same_class_via_entry_point_and_env(
     assert registry is not None
 
 
+# -- Regression tests for loader bugs --------------------------------------
+
+
+def test_loader_loads_every_class_in_plugins_list(
+    _clean_plugin_modules: list[str],
+) -> None:
+    """Bug #1 + #2: a module exposing PLUGINS = [A, B, C] must load all three.
+
+    Previously the loader kept only the first instance; the rest were
+    silently instantiated and discarded.
+    """
+    name = "tn_venv_tests_loader_multi"
+    _clean_plugin_modules.append(name)
+
+    class _A(Plugin):
+        name = "multi_a"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.SESSION_START, lambda c: None, plugin_name=self.name
+            )
+
+    class _B(Plugin):
+        name = "multi_b"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.SESSION_START, lambda c: None, plugin_name=self.name
+            )
+
+    class _C(Plugin):
+        name = "multi_c"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.SESSION_START, lambda c: None, plugin_name=self.name
+            )
+
+    mod = types.ModuleType(name)
+    mod.PLUGINS = [_A, _B, _C]
+    sys.modules[name] = mod
+
+    registry = load_plugins(
+        Reporter(verbosity=0), env={PLUGIN_ENV_VAR: name}
+    )
+    names = {l.plugin_name for l in registry._listeners[HookName.SESSION_START]}  # type: ignore[attr-defined]
+    # All three plugin names must appear in the listener list.
+    assert {"multi_a", "multi_b", "multi_c"}.issubset(names)
+
+
+def test_loader_skips_abstract_base_classes(
+    _clean_plugin_modules: list[str],
+) -> None:
+    """Bug #10 + #11: a module that defines ``class Base(Plugin)`` followed
+    by ``class Concrete(Base)`` must load ``Concrete``, not ``Base``.
+
+    Previously the vars() scan picked up classes in insertion order, so
+    the empty-named base class was selected and the concrete plugin was
+    silently dropped.
+    """
+    name = "tn_venv_tests_loader_base"
+    _clean_plugin_modules.append(name)
+
+    class _Base(Plugin):
+        name = ""  # abstract / helper base
+
+    class _Concrete(_Base):
+        name = "concrete_only"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.PRE_CREATE, lambda c: None, plugin_name=self.name
+            )
+
+    mod = types.ModuleType(name)
+    mod._Base = _Base
+    mod._Concrete = _Concrete
+    sys.modules[name] = mod
+
+    registry = load_plugins(
+        Reporter(verbosity=0), env={PLUGIN_ENV_VAR: name}
+    )
+    # Exactly one PRE_CREATE listener, registered by _Concrete.
+    assert registry.listener_count(HookName.PRE_CREATE) == 1
+
+
+def test_loader_entry_point_to_module_loads_all_plugins(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Bug coverage: an entry point that points to a *module* (rather
+    than a class) must load every Plugin class declared in that module.
+
+    This path goes through _from_entry_point -> _from_module_attr and
+    is what trips users up when their plugin package uses the
+    ``PLUGINS = [...]`` convention.
+    """
+
+    class _ModuleA(Plugin):
+        name = "mod_ep_a"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.SESSION_END, lambda c: None, plugin_name=self.name
+            )
+
+    class _ModuleB(Plugin):
+        name = "mod_ep_b"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.SESSION_END, lambda c: None, plugin_name=self.name
+            )
+
+    mod = types.ModuleType("tn_venv_tests_ep_module")
+    mod.PLUGINS = [_ModuleA, _ModuleB]
+    sys.modules["tn_venv_tests_ep_module"] = mod
+
+    class _FakeEP:
+        name = "ep_module_test"
+        value = "tn_venv_tests_ep_module"
+
+        def load(self):
+            return mod
+
+    monkeypatch.setattr(
+        "tn_venv.plugins.loader._iter_entry_points", lambda: iter([_FakeEP()])
+    )
+    # Clean up the test module from sys.modules so the fixture isn't
+    # needed; we only care about the loader's behaviour here.
+    try:
+        registry = load_plugins(Reporter(verbosity=0))
+        names = {
+            l.plugin_name
+            for l in registry._listeners[HookName.SESSION_END]  # type: ignore[attr-defined]
+        }
+        assert {"mod_ep_a", "mod_ep_b"}.issubset(names)
+    finally:
+        sys.modules.pop("tn_venv_tests_ep_module", None)
+
+
+def test_loader_comma_separated_env_loads_every_spec(
+    _clean_plugin_modules: list[str],
+) -> None:
+    """Bug coverage: ``TN_VENV_PLUGINS=a:A,b:B`` must load both A and B.
+
+    Previously the env-var loader called _resolve_target and threw away
+    every plugin after the first one returned per spec.
+    """
+    name_a = "tn_venv_tests_multi_spec_a"
+    name_b = "tn_venv_tests_multi_spec_b"
+    _clean_plugin_modules.extend([name_a, name_b])
+
+    class _A(Plugin):
+        name = "spec_a"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.POST_SEED, lambda c: None, plugin_name=self.name
+            )
+
+    class _B(Plugin):
+        name = "spec_b"
+
+        def register(self, hooks):
+            hooks.add(
+                HookName.POST_SEED, lambda c: None, plugin_name=self.name
+            )
+
+    mod_a = types.ModuleType(name_a)
+    mod_a._A = _A
+    sys.modules[name_a] = mod_a
+    mod_b = types.ModuleType(name_b)
+    mod_b._B = _B
+    sys.modules[name_b] = mod_b
+
+    registry = load_plugins(
+        Reporter(verbosity=0),
+        env={PLUGIN_ENV_VAR: f"{name_a}:_A,{name_b}:_B"},
+    )
+    names = {
+        l.plugin_name
+        for l in registry._listeners[HookName.POST_SEED]  # type: ignore[attr-defined]
+    }
+    assert {"spec_a", "spec_b"}.issubset(names)
+
+
 
 # -- pipeline integration ---------------------------------------------------
 
