@@ -59,7 +59,7 @@ receives a single ``HookContext``.
 The five lifecycle hooks fire during `run_session`; `HELP_EPILOG` is
 special: it runs only when the user asks for help, has no `HookContext`
 argument, and the listener returns the text to append to the help
-output. See {ref}`help-epilog-hook` below.
+output. See {ref}`help-epilog` below.
 
 Hooks are *additive*: every registered callback runs. A listener that
 raises is logged at warning level but does not abort the pipeline.
@@ -170,7 +170,7 @@ release.
 (some test paths or programmatic invocations). Always check or use
 `getattr(ctx, "options", None)`.
 
-(help-epilog-hook)=
+(help-epilog)=
 ### Customizing `tn-venv --help`
 
 The `HELP_EPILOG` hook lets a plugin append text to `tn-venv --help`
@@ -203,10 +203,14 @@ A few rules of thumb:
   this yourself — `HELP_EPILOG` is only for *extra* text the
   plugin wants to advertise (subcommand menus, examples, status
   pages, etc.).
-- Plugins are loaded **lazily** for help rendering: a normal
-  `tn-venv .venv` invocation never triggers `load_plugins()`. Only
-  `--help` does. So `HELP_EPILOG` listeners can do non-trivial work
-  (e.g. query an upstream service) without slowing down creation.
+- Plugins are loaded **eagerly** at the top of `cli_run`, not just
+  when `--help` is requested. The eager load is what lets a plugin
+  that wraps `tn_venv.cli.cli_run` (e.g. the `tn-venv-gui` package
+  installing its `gui` subcommand) intercept argv like
+  `tn-venv gui --help` before argparse sees the help flag. Cost is
+  small — only the built-in plugin is loaded in the common case,
+  and a `tn-venv .venv` invocation that doesn't use any plugin
+  still pays no more than the previous lazy-load version.
 - Listener failures are caught and reported at warning level; they
   never break `--help`.
 

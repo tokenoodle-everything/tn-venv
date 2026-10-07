@@ -344,7 +344,7 @@ def _register_with_owner(registry: HookRegistry, plugin: Plugin) -> None:
         )
 
         def _wrapping_decorator(real_fn):
-            decorated = original_decorator(real_fn)
+            decorated = original_decorator(real_fn)  # type: ignore # pyrefly: ignore [not-callable]
             pending[id(decorated)] = plugin
             return decorated
 

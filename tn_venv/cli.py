@@ -359,7 +359,47 @@ def _list_plugins(reporter: Reporter) -> int:
 def cli_run(
     args: list[str] | None = None, *, environ: dict[str, str] | None = None
 ) -> int:
-    """Programmatic entry point; returns a process exit code."""
+    """Programmatic entry point; returns a process exit code.
+
+    Plugins are loaded *eagerly* (before ``parse_args``) so a plugin
+    that wants to contribute to ``tn-venv --help`` (via the
+    ``HELP_EPILOG`` hook) or to install a CLI subcommand (via a
+    monkey-patch on ``tn_venv.cli.cli_run``) gets a chance to do so
+    before argparse short-circuits on ``-h``/``--help``.
+
+    Once the eager load has run, ``cli_run`` itself is re-invoked if
+    a plugin replaced it. This makes subcommand dispatching
+    (e.g. ``tn-venv gui --help``) work on the first invocation that
+    triggers plugin loading.
+    """
+    # ``original_cli_run`` captures the *function object this frame
+    # is bound to*. Without this we cannot detect a plugin's
+    # monkey-patch, because inside the function body the bare name
+    # ``cli_run`` resolves to the *current* module attribute (which
+    # the patch may have replaced).
+    original_cli_run = cli_run  # noqa: F841 (used below)
+
+    # Force plugin loading. The cost is small: only the built-in
+    # plugin is loaded in the common case.
+    try:
+        from .plugins import load_plugins
+        from .report import SILENT
+
+        load_plugins(reporter=SILENT)
+    except Exception:  # noqa: BLE001 - never let a plugin break the CLI
+        pass
+    else:
+        # If a plugin replaced ``tn_venv.cli.cli_run``, re-invoke
+        # through the (now-patched) module attribute so the plugin's
+        # dispatcher runs. This is how ``tn-venv gui --help`` works:
+        # the eager load above installs the gui subcommand's patch
+        # on cli_run, and we route the rest of the call through it.
+        import tn_venv.cli as _self
+
+        if _self.cli_run is not original_cli_run:
+            return _self.cli_run(args=args, environ=environ)
+        del _self
+
     parser = build_parser()
     namespace = parser.parse_args(args)
 
@@ -397,8 +437,16 @@ def _print_dry_run(options: Options, reporter: Reporter) -> None:
 
 
 def main() -> None:
-    """Console-script entry point (``tn-venv``)."""
-    raise SystemExit(cli_run())
+    """Console-script entry point (``tn-venv``).
+
+    Looks ``cli_run`` up via the module attribute at call time rather
+    than binding it at definition time, so plugins that monkey-patch
+    ``tn_venv.cli.cli_run`` after this module was imported (such as
+    ``tn-venv-gui`` installing its ``gui`` subcommand) are honoured.
+    """
+    import tn_venv.cli as _self
+
+    raise SystemExit(_self.cli_run())
 
 
 if __name__ == "__main__":  # pragma: no cover

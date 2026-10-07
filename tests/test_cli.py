@@ -321,7 +321,15 @@ def test_help_includes_loaded_plugins(
 def test_help_plugin_block_is_lazy(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The plugin loader must NOT run for non-help commands."""
+    """The plugin loader runs exactly once per cli_run() call.
+
+    Plugins are loaded eagerly at the top of cli_run so that a
+    plugin which replaces ``tn_venv.cli.cli_run`` (e.g.
+    ``tn-venv-gui`` installing its ``gui`` subcommand) gets a chance
+    to do so before argparse sees the argv. But the eager load must
+    not duplicate work — if a plugin replaces cli_run, the re-invoke
+    branch handles dispatch and cli_run is not called twice.
+    """
 
     from tn_venv.plugins.registry import HookRegistry
 
@@ -332,11 +340,11 @@ def test_help_plugin_block_is_lazy(
         return HookRegistry(reporter=reporter)
 
     monkeypatch.setattr("tn_venv.plugins.load_plugins", _counting)
-    # Run a non-help command. We pick --list-pythons because it never
-    # triggers format_help. (The Registry has no listeners, so the
-    # loader is only called when --help is requested.)
+    # Run a non-help command. --list-pythons short-circuits inside
+    # cli_run before any user-visible work happens, but the loader
+    # is still called once to set up the registry.
     cli.cli_run(["--list-pythons"])
-    assert calls["n"] == 0
+    assert calls["n"] == 1
 
 
 def test_collect_help_epilog_returns_empty_on_loader_failure(

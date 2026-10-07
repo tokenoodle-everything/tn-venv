@@ -88,11 +88,20 @@ The session pipeline emits five events at well-defined points:
 `session_end`. Each callback receives a
 ``HookContext`` and may mutate `ctx.data` (to
 share scratch state with later hooks of the same run) or `ctx.result`
-(during `session_end` only). Plugins are loaded before step 1 by
-``load_plugins``, which consults the built-in
+(during `session_end` only). A sixth hook, `HELP_EPILOG`, fires only
+when `tn-venv --help` is rendered; its listener returns a string
+that tn-venv appends to the help output.
+
+Plugins are loaded by ``load_plugins``, which consults the built-in
 registry, the `tn_venv.plugins` entry-point group, and the
 `TN_VENV_PLUGINS` environment variable in that order; duplicates are
-deduplicated by class. See {doc}`../guide/plugins` for the user-facing
+deduplicated by class. The loader runs eagerly at the top of
+``cli_run`` — so a plugin that wraps ``cli_run`` (e.g. the
+``tn-venv-gui`` package installing its ``gui`` subcommand) gets a
+chance to intercept argv like ``tn-venv gui --help`` before argparse
+sees the help flag — and lazily inside ``format_help`` as a
+belt-and-braces fallback for hosts that print help without going
+through ``cli_run``. See {doc}`../guide/plugins` for the user-facing
 tutorial.
 
 ## Concurrency model

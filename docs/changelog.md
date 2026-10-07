@@ -17,8 +17,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `tn-venv --help` output via a public hook instead of monkey-
   patching `argparse`. The listener takes no arguments and returns
   a string; tn-venv appends it after an auto-generated `Plugins:`
-  block. Plugins are loaded lazily on `--help`, so the cost is paid
-  only when the user asks for help.
+  block. Plugins are loaded eagerly by :func:`cli_run` so a plugin
+  that wraps ``tn_venv.cli.cli_run`` (e.g. ``tn-venv-gui`` installing
+  its ``gui`` subcommand) gets a chance to intercept argv like
+  ``tn-venv gui --help`` before argparse sees the help flag.
 - `PluginSource` dataclass exported from `tn_venv.plugins`. Every
   loaded plugin instance now carries a `_tn_venv_source` attribute
   describing where it came from (`built-in`,
@@ -27,7 +29,31 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   dataclass is part of the public API for callers who want to
   introspect plugins programmatically.
 
+### Changed
+- The plugin loader is now invoked **eagerly** at the top of
+  :func:`tn_venv.cli.cli_run` rather than lazily on `--help`.
+  Plugins that replace ``tn_venv.cli.cli_run`` (e.g. the
+  ``tn-venv-gui`` package installing its ``gui`` subcommand) now
+  intercept argv like ``tn-venv gui --help`` on the very first
+  invocation that triggers plugin loading. The lazy ``--help`
+  trigger (via ``format_help``) is still in place as a belt-and-
+  braces fallback for hosts that print help without going
+  through ``cli_run``.
+- ``main()`` looks up ``cli_run`` on its own module at call time
+  instead of binding the name at definition time, so the
+  console-script entry point picks up a plugin's monkey-patch
+  even when ``main`` was imported before the patch was applied.
+
 ### Fixed
+- ``tn-venv gui --help`` printed the full tn-venv help instead of
+  the GUI subcommand's help. The cli_run monkey-patch installed
+  by the plugin only ran on the *next* invocation, so argparse
+  saw ``--help`` first and short-circuited before the wrapper
+  could dispatch. Fixed by capturing the original ``cli_run``
+  reference at the top of ``cli_run`` and re-invoking through
+  the (now-patched) module attribute when the plugin has
+  replaced the function.
+
 - Plugin loader dropped every plugin past the first one. A module that
   declared `PLUGINS = [A, B, C]` only ever loaded `A`; the same bug
   affected comma-separated entries in `TN_VENV_PLUGINS` and

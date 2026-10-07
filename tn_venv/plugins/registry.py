@@ -149,7 +149,7 @@ class HookRegistry:
         parts: list[str] = []
         for listener in self._listeners[h]:
             try:
-                result = listener.fn()
+                result = listener.fn()  # type: ignore
             except Exception as exc:  # noqa: BLE001
                 src = (
                     f"{listener.plugin_name}.{listener.fn.__qualname__}"
