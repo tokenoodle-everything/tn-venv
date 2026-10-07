@@ -31,7 +31,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - The plugin loader is now invoked **eagerly** at the top of
-  :func:`tn_venv.cli.cli_run` rather than lazily on `--help`.
+  `tn_venv.cli.cli_run` rather than lazily on `--help`.
   Plugins that replace ``tn_venv.cli.cli_run`` (e.g. the
   ``tn-venv-gui`` package installing its ``gui`` subcommand) now
   intercept argv like ``tn-venv gui --help`` on the very first
