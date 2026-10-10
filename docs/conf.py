@@ -44,6 +44,33 @@ myst_heading_anchors = 4
 
 nitpicky = False
 
+# Set a real-browser User-Agent so shields.io (and other image hosts
+# that gate on UA) return 200 to Sphinx's image downloader. The
+# default `Python-urllib/3.x` UA is blocked by shields.io (it
+# returns 403, which MyST renders as a broken-image icon). This
+# setting is harmless for any other remote image.
+import urllib.request as _urllib_request
+
+_orig_urlopen = _urllib_request.urlopen
+
+
+def _patched_urlopen(url, *args, **kwargs):
+    req_or_url = url
+    if isinstance(url, str):
+        req_or_url = _urllib_request.Request(
+            url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Sphinx; tn-venv-docs) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko)"
+                ),
+            },
+        )
+    return _orig_urlopen(req_or_url, *args, **kwargs)
+
+
+_urllib_request.urlopen = _patched_urlopen
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
