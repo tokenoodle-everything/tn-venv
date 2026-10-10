@@ -70,7 +70,7 @@ to have been evaluated).
 
 | Plugin | Author | Repository | Maintenance | Stability | Documentation | Adoption | Tier | Reviewed |
 |---|---|---|---|---|---|---|---|---|
-| `tn-venv-gui` | Tokenoodle-Everything | [repo](https://github.com/tokenoodle-everything/tn-venv-gui) | 5/5 | 5/5 | 3/5 | 2/5 | Tier 4 (platinum) | 2026-10-10 |
+| `tn-venv-gui` | Tokenoodle-Everything | [repo](https://github.com/tokenoodle-everything/tn-venv-gui) | 5/5 | 5/5 | 3/5 | 2/5 | Tier 3 (gold) | 2026-10-10 |
 
 ### How to read the row
 
