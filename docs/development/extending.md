@@ -6,9 +6,9 @@ them.
 
 If you only need to *observe* the pipeline (log timestamps, dump
 metadata, write extra files into the new environment, install extra
-packages, …) you almost certainly want the {doc}`plugin system
-</guide/plugins>` instead — it is the stable, public hook surface and
-needs no patching of the upstream code.
+packages, …) you almost certainly want the
+{doc}`../plugins/index` instead — it is the stable, public hook
+surface and needs no patching of the upstream code.
 
 ## Writing an activator
 

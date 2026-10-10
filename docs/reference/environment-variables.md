@@ -50,7 +50,7 @@ configuration loader:
 |---|---|
 | `TN_VENV_CONFIG_FILE` | explicit config file path (equivalent of `--config`) |
 | `TN_VENV_FORCE_COLOR` | force colored output even when stdout is not a TTY |
-| `TN_VENV_PLUGINS` | comma-separated plugin specs (`pkg.module:Class` or `pkg.module`) loaded after entry-point plugins. See {doc}`../guide/plugins`. |
+| `TN_VENV_PLUGINS` | comma-separated plugin specs (`pkg.module:Class` or `pkg.module`) loaded after entry-point plugins. See {doc}`../plugins/index`. |
 | `NO_COLOR` | disable colored output ([no-color.org](https://no-color.org/) convention) |
 | `FORCE_COLOR` | force colored output (common convention) |
 | `UV_PYTHON_INSTALL_DIR` | extra root scanned by the `uv` discovery provider |

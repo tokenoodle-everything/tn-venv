@@ -94,6 +94,11 @@ guide/seeding
 guide/activation
 guide/configuration
 guide/plugins
+plugins/index
+plugins/quickstart
+plugins/hooks
+plugins/cli-integration
+plugins/reference
 guide/api
 guide/comparison
 guide/faq

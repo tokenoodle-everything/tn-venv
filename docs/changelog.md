@@ -75,6 +75,41 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   literal `<code>~tn_venv.…</code>` (with the leading tilde) and
   provided no linkability.
 
+## Docs
+
+- Moved the full plugin reference from a single page into a new
+  `docs/plugins/` directory. `docs/guide/plugins.md` is now a
+  navigation pointer; the authoritative reference lives at
+  :doc:`plugins/index`.
+- New pages under `docs/plugins/`: `index` (overview, public API
+  table, when-to-use, versioning policy), `quickstart` (minimal
+  end-to-end "write your first plugin" recipe, including the
+  `pyproject.toml` entry-point snippet), `discovery` (built-ins /
+  entry points / `TN_VENV_PLUGINS`, deduplication rules, failure
+  isolation, programmatic use, edge cases), `hooks` (full reference
+  for all six hooks — the five lifecycle hooks plus `HELP_EPILOG` —
+  with `ctx.data` keys populated per stage, listener signatures,
+  priority, fault isolation, recipes), `authoring` (the full
+  `Plugin` / `HookRegistry` / `HookContext` / `PluginSource` API,
+  including introspected members used by `--list-plugins`),
+  `cli-integration` (`--list-plugins`, `HELP_EPILOG`, adding a CLI
+  subcommand, the cli-run monkey-patch contract), `reference`
+  (one-screen API table for everything in `tn_venv.plugins`).
+- Slimmed plugin mentions in the rest of the docs to one-line
+  references pointing at `docs/plugins/`:
+  `docs/reference/python-api.md` (Plugin system section now lists
+  the public symbols and links to the reference),
+  `docs/reference/cli.md` (`--list-plugins` now points at the new
+  CLI-integration page), `docs/reference/environment-variables.md`
+  (`TN_VENV_PLUGINS` row now points at `docs/plugins/index`),
+  `docs/development/extending.md` (the existing redirect at the top
+  now points at `../plugins/...` instead of `../guide/plugins`).
+- `docs/development/architecture.md` Plugin hooks section updated
+  for the eager plugin load (see the [Changed] section above).
+- `docs/guide/plugins.md` updated cross-reference (`{ref}`target)
+  renamed `help-epilog-hook` to `help-epilog` to match the
+  labelled section anchor.
+
 ## [1.0.0] — 2026-10-05 — 2026-10-05
 
 ### Added

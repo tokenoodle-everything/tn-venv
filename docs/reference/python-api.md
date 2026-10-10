@@ -124,15 +124,20 @@ All are importable from the package root (`from tn_venv import TnVenvError, …`
 
 ## Plugin system
 
-| Symbol | Type | Meaning |
-|---|---|---|
-| `Plugin` | class | base class — subclass and override `register(hooks)` |
-| `HookName` | enum | the lifecycle events (`SESSION_START`, `PRE_CREATE`, `POST_ACTIVATORS`, `POST_SEED`, `SESSION_END`) plus `HELP_EPILOG` |
-| `HookContext` | dataclass | the single argument passed to every lifecycle hook (`options`, `reporter`, `result`, `data`) |
-| `load_plugins` | function | build a populated `HookRegistry` from entry points and `TN_VENV_PLUGINS` |
-| `PluginSource` | dataclass | provenance attached to each loaded plugin (`kind`, `spec`); consumed by `--list-plugins` |
-| `VersionStampPlugin` | class | built-in that writes `tn-venv-version` into `pyvenv.cfg` |
+The plugin system is documented in full at {doc}`../plugins/index`.
+Briefly:
 
-See {doc}`../guide/plugins` for the full tutorial and entry-point
-recipe; the dataclass fields, hook names, and public symbols are
-backward-compatible.
+- `Plugin` — base class; subclass and override `register(hooks)`.
+- `HookName` — enum of all hook names.
+- `HookContext` — the dataclass passed to every lifecycle hook.
+- `HookRegistry` — the dispatcher.
+- `PluginSource` — provenance attached to each loaded plugin.
+- `load_plugins`, `parse_plugin_spec`, `require_plugin` — discovery
+  and introspection helpers.
+- `VersionStampPlugin` — the built-in plugin shipped with tn-venv.
+
+For the full API surface, discovery semantics, hook payload,
+priority rules, fault-isolation contract, and the entry-point /
+`TN_VENV_PLUGINS` discovery protocol, see
+{doc}`../plugins/index`. The contract is backward-compatible; new
+hook names and new public symbols may be added in minor versions.

@@ -26,27 +26,16 @@ Probe and print every discoverable interpreter, then exit. CLI only.
 
 ### `--list-plugins`
 
-Load every plugin (built-ins, third-party entry points in the
-`tn_venv.plugins` group, and any `TN_VENV_PLUGINS` overrides), then
-print a table of plugin name, registered hooks, and the source each
-plugin was loaded from (`built-in`, `entry-point: NAME=SPEC`, or
-`env: TN_VENV_PLUGINS`). CLI only.
+Print a table of every loaded plugin (built-ins, third-party entry
+points in the `tn_venv.plugins` group, and `TN_VENV_PLUGINS`
+overrides): plugin name, registered hooks, and provenance.
+CLI only. Returns 0 when at least one plugin loaded, 1 otherwise.
 
-Example output:
-
-```text
-==> discovering plugins…
-  tn-venv-gui        (no hooks)
-                     source: entry-point: subcommand=tn_venv_gui.plugin:GuiSubcommandPlugin
-  tn-venv-gui-hooks  session_end, session_start
-                     source: entry-point: hooks=tn_venv_gui.plugin:GuiHookPlugin
-  version_stamp      post_activators
-                     source: built-in: VersionStampPlugin
-```
-
-Plugins whose `register()` ran but added no hooks (CLI shims,
-subcommand installers, …) are listed with `(no hooks)`. See
-{doc}`../guide/plugins` for the full plugin contract.
+The full semantics — what each column means, fault-isolation
+behaviour, ordering of the three sources — are documented at
+{doc}`../plugins/cli-integration`. For writing plugins that
+appear in this listing, see {doc}`../plugins/quickstart` and
+{doc}`../plugins/authoring`.
 
 ## Creator
 

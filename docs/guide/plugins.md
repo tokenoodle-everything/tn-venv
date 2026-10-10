@@ -1,228 +1,37 @@
-# Plugins
+﻿# Plugins
+
+> **The full plugin reference lives in {doc}`../plugins/index`.**
+>
+> This page is a navigation pointer. The authoritative
+> documentation for the plugin system — quickstart, discovery,
+> hooks, authoring, CLI integration, and the API reference — is in
+> `docs/plugins/`. The original tutorial content that used to live
+> here has moved there; this guide now links to the relevant section
+> of `docs/plugins/`.
+
+## Quick links
+
+| If you want to… | Go to |
+|---|---|
+| Write your first plugin | {doc}`../plugins/quickstart` |
+| Understand how plugins are loaded | {doc}`../plugins/discovery` |
+| See the full hook reference | {doc}`../plugins/hooks` |
+| Use the Plugin / HookRegistry / HookContext API | {doc}`../plugins/authoring` |
+| Add text to tn-venv --list-plugins, customise --help, or install a CLI subcommand | {doc}`../plugins/cli-integration` |
+| Look up a specific symbol | {doc}`../plugins/reference` |
+
+## Overview
 
 `tn-venv` ships with a small plugin system that lets you tap into the
-creation pipeline at five well-defined points. Plugins can read and
-modify the ``Options``, peek at the freshly built
-``CreatorContext``, append activation
-scripts, stamp metadata into `pyvenv.cfg`, install extra packages, log
-information, or short-circuit parts of the process — all without
-forking tn-venv.
+creation pipeline at six well-defined points. Plugins can read and
+modify the `Options`, peek at the freshly built `CreatorContext`,
+append activation scripts, stamp metadata into `pyvenv.cfg`,
+install extra packages, log information, or short-circuit parts of
+the process — all without forking `tn-venv`.
 
 The default install includes one built-in plugin
-(``VersionStampPlugin``) that writes
+(`VersionStampPlugin`) that writes
 `tn-venv-version = <version>` into `pyvenv.cfg` after the activation
-scripts are generated.
+scripts are generated. For the full story, see
+{doc}`../plugins/index`.
 
-## Quick start
-
-The smallest possible plugin:
-
-```python
-# my_pkg/tnvenv_plugin.py
-from tn_venv.plugins import HookName, Plugin
-
-
-class TimestampPlugin(Plugin):
-    name = "timestamp"
-
-    def register(self, hooks):
-        hooks.add(HookName.SESSION_START, self._stamp)
-
-    def _stamp(self, ctx):
-        ctx.data["started_at"] = time.time()
-```
-
-Register it in your `pyproject.toml`:
-
-```toml
-[project.entry-points."tn_venv.plugins"]
-timestamp = "my_pkg.tnvenv_plugin:TimestampPlugin"
-```
-
-From now on, every `tn-venv` invocation will load your plugin
-automatically.
-
-## Hooks
-
-The pipeline emits the following events, in order. Each callback
-receives a single ``HookContext``.
-
-| Hook | When | `ctx.data` keys populated by the pipeline |
-|---|---|---|
-| `SESSION_START` | after option resolution and interpreter discovery | `{}` |
-| `PRE_CREATE` | immediately before `Creator.create()` | `{}` |
-| `POST_ACTIVATORS` | after every activation script has been written | `cfg_path`, `env_dir`, `scripts` |
-| `POST_SEED` | after the seeder finishes (or skips) | `cfg_path`, `env_dir`, `scripts`, `seed_result` |
-| `SESSION_END` | last, just before `run_session` returns | all of the above plus `result` (a `SessionResult`) |
-| `HELP_EPILOG` | when `tn-venv --help` is rendered (CLI only) | n/a — listener returns a string instead of mutating `ctx` |
-
-The five lifecycle hooks fire during `run_session`; `HELP_EPILOG` is
-special: it runs only when the user asks for help, has no `HookContext`
-argument, and the listener returns the text to append to the help
-output. See {ref}`help-epilog` below.
-
-Hooks are *additive*: every registered callback runs. A listener that
-raises is logged at warning level but does not abort the pipeline.
-
-### `HookContext`
-
-```python
-@dataclass
-class HookContext:
-    options: Options | None          # the resolved Options
-    reporter: Reporter | None        # for warn / debug / info
-    result: SessionResult | None     # populated for SESSION_END
-    data: dict[str, Any]             # per-run scratch space
-```
-
-`data` is shared across every hook of a single run, so plugins can pass
-information forward (for example, an analysis plugin writes findings
-under `data["findings"]` and a reporter plugin reads them in
-`SESSION_END`).
-
-## Discovery
-
-The loader looks at three places, in order, deduplicating by class:
-
-1. **Built-ins** — ``VersionStampPlugin`` is
-   always loaded.
-2. **Entry points** in the `tn_venv.plugins` group, declared by
-   third-party packages.
-3. **`TN_VENV_PLUGINS`** — an environment variable listing extra
-   plugins, comma-separated. Each entry is one of:
-   - `pkg.module:Class` — import `pkg.module` and instantiate `Class`.
-   - `pkg.module` — import the module and look for either a
-     `PLUGINS` iterable or any `Plugin` subclass defined there.
-
-A plugin that fails to import or instantiate is logged at warning level
-and skipped — your shell `tn-venv .venv` will not blow up because a
-third-party plugin is broken.
-
-### Declaring an entry point
-
-In your package's `pyproject.toml`:
-
-```toml
-[project]
-name = "my-pkg"
-version = "0.1.0"
-
-[project.entry-points."tn_venv.plugins"]
-my_plugin = "my_pkg.tnvenv_plugin:MyPlugin"
-```
-
-`my_plugin` is the entry-point name (used for diagnostics only);
-`my_pkg.tnvenv_plugin:MyPlugin` is the dotted path of the class to
-instantiate.
-
-### Using `TN_VENV_PLUGINS`
-
-For ad-hoc testing you can point at any importable class:
-
-```console
-$ TN_VENV_PLUGINS="my_pkg.tnvenv_plugin:TimestampPlugin" tn-venv
-```
-
-The variable also accepts bare module names; in that case the loader
-looks for a top-level `PLUGINS` iterable, then falls back to the first
-`Plugin` subclass defined in the module.
-
-## Writing a plugin
-
-A plugin is a class subclassing ``Plugin`` with
-a unique `name` and a `register` method:
-
-```python
-from tn_venv.plugins import HookContext, HookName, Plugin
-
-
-class PyenvRcPlugin(Plugin):
-    name = "pyenvrc"
-
-    def register(self, hooks):
-        hooks.add(HookName.POST_ACTIVATORS, self._write_pyenvrc, priority=50)
-
-    def _write_pyenvrc(self, ctx):
-        env_dir = ctx.data.get("env_dir")
-        if env_dir is None:
-            return
-        (env_dir / ".python-version").write_text(ctx.options.python[0] + "\n")
-```
-
-### Priorities
-
-`hooks.add(hook, fn, priority=N)` controls dispatch order. Higher
-priorities run first; ties keep insertion order. Built-ins use
-`DEFAULT_PRIORITY - 50` so your plugins run before them by default.
-Override the priority when you need to be earlier (e.g. analyser
-plugins) or later (e.g. final reporting).
-
-### Returning values
-
-Hooks **must return `None`**. Communicate through `ctx.data` or by
-mutating `ctx.result` during `SESSION_END`. Returning a non-`None`
-value is currently ignored and will become an error in a future
-release.
-
-### Reading options safely
-
-`ctx.options` may be `None` for hooks fired outside a real session
-(some test paths or programmatic invocations). Always check or use
-`getattr(ctx, "options", None)`.
-
-(help-epilog)=
-### Customizing `tn-venv --help`
-
-The `HELP_EPILOG` hook lets a plugin append text to `tn-venv --help`
-output **without monkey-patching `argparse`**. Unlike the lifecycle
-hooks, the listener takes no arguments and returns a string:
-
-```python
-from tn_venv.plugins import HookName, Plugin
-
-
-class HelpAdder(Plugin):
-    name = "help_adder"
-
-    def register(self, hooks):
-        def _epilog():
-            return (
-                "optional subcommands provided by help_adder:\n"
-                "  mycmd    run my custom command"
-            )
-
-        hooks.add(HookName.HELP_EPILOG, _epilog, plugin_name=self.name)
-```
-
-A few rules of thumb:
-
-- The listener must return a `str` (or `None` to opt out). Returning
-  an empty string contributes nothing.
-- tn-venv automatically appends a `Plugins:` block listing every
-  loaded plugin and the hooks it registered. You don't need to do
-  this yourself — `HELP_EPILOG` is only for *extra* text the
-  plugin wants to advertise (subcommand menus, examples, status
-  pages, etc.).
-- Plugins are loaded **eagerly** at the top of `cli_run`, not just
-  when `--help` is requested. The eager load is what lets a plugin
-  that wraps `tn_venv.cli.cli_run` (e.g. the `tn-venv-gui` package
-  installing its `gui` subcommand) intercept argv like
-  `tn-venv gui --help` before argparse sees the help flag. Cost is
-  small — only the built-in plugin is loaded in the common case,
-  and a `tn-venv .venv` invocation that doesn't use any plugin
-  still pays no more than the previous lazy-load version.
-- Listener failures are caught and reported at warning level; they
-  never break `--help`.
-
-The legacy way to do this was to monkey-patch `build_parser` and
-append to `parser.epilog`. New plugins should prefer `HELP_EPILOG` —
-it's stable, public, and doesn't depend on argparse internals.
-
-## Reference
-
-- ``api`` — `Plugin`, `HookName`, `HookContext`,
-  `PLUGIN_ENTRY_POINT`, `PLUGIN_ENV_VAR`.
-- ``registry`` — `HookRegistry`, `DEFAULT_PRIORITY`.
-- ``loader`` — `load_plugins`, `parse_plugin_spec`,
-  `require_plugin`.
-- ``builtin`` — `VersionStampPlugin`.
