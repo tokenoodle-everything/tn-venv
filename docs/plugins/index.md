@@ -20,6 +20,7 @@ hooks
 authoring
 cli-integration
 reference
+community
 ```
 
 ## Contents at a glance
@@ -32,6 +33,7 @@ reference
 | {doc}`authoring` | The full `Plugin` class API: `register()`, `HookContext`, `PluginSource`, `HookRegistry`. |
 | {doc}`cli-integration` | `tn-venv --list-plugins`, customizing `--help` via `HELP_EPILOG`, monkey-patching `cli_run` for subcommands. |
 | {doc}`reference` | One-screen API table for everything in `tn_venv.plugins`. |
+| {doc}`community` | Plugin registry: tiered rating (Maintenance / Stability / Documentation / Adoption), the *Official Authorized* badge, monthly selections. |
 
 ## Public API surface
 
@@ -119,3 +121,30 @@ The `Plugin._tn_venv_source` attribute **is** part of the public
 API as of 1.1.0 (it's read by `tn-venv --list-plugins`), but the
 leading underscore signals "set by the loader, not by the plugin
 author". Plugins should treat it as read-only.
+
+## Adding your plugin to the registry
+
+If you have a plugin for this project, add it to the
+{doc}`community` registry by opening a PR against
+`docs/plugins/community.md`. The maintainers will review it
+within 14 days and fill in the four rating columns
+(Maintenance / Stability / Documentation / Adoption), the
+tier badge, and — if appropriate — the *Official Authorized*
+cell.
+
+A typical plugin README badge block looks like this:
+
+```markdown
+![Maintenance 4/5](https://img.shields.io/badge/maintenance-4%2F5-brightgreen)
+![Stability 5/5](https://img.shields.io/badge/stability-5%2F5-brightgreen)
+![Documentation 5/5](https://img.shields.io/badge/documentation-5%2F5-brightgreen)
+![Adoption 4/5](https://img.shields.io/badge/adoption-4%2F5-brightgreen)
+![Tier platinum](https://img.shields.io/badge/tier-platinum-E5E4E2)
+![Official Authorized](https://img.shields.io/badge/official%20authorized-C0C0C0)
+```
+
+The exact badge URLs for each row in the registry are listed on
+the {doc}`community` page. Copy the row that corresponds to your
+plugin's current tier; the maintainers will re-sync your README
+badges when they refresh the registry at the start of each monthly
+review cycle.

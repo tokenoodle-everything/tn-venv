@@ -104,6 +104,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`TN_VENV_PLUGINS` row now points at `docs/plugins/index`),
   `docs/development/extending.md` (the existing redirect at the top
   now points at `../plugins/...` instead of `../guide/plugins`).
+- New plugin-registry page at `docs/plugins/community.md`.
+  Plugin authors add their row by opening a PR; the four
+  ratings (Maintenance / Stability / Documentation / Adoption,
+  each 1-5 stars), the tier badge (Bronze / Silver / Gold /
+  Platinum, derived from the average), the *Official Authorized*
+  flag (granted only by the tn-venv team), and the last-reviewed
+  date are filled in by the maintainers after merge. Shields.io
+  badge URLs for every rating dimension are documented and the
+  page also lays out the *Plugin of the Month*, *Rising Plugin*,
+  and *Most Discussed* slots that will be filled in by the
+  November 2026 monthly cycle. The `tn-venv-gui` row ships at
+  Tier 4 (Platinum) with Official Authorized status; all
+  subsequent rows must be added by maintainers, not by the
+  plugin authors themselves.
 - `docs/development/architecture.md` Plugin hooks section updated
   for the eager plugin load (see the [Changed] section above).
 - `docs/guide/plugins.md` updated cross-reference (`{ref}`target)
