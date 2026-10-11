@@ -32,10 +32,10 @@ The four ratings are averaged and mapped to a tier:
 
 | Tier | Color | Average score | Badge |
 |---|---|---|---|
-| Tier 1 | bronze | 1.0 - 2.0 | ![tier-1](../_static/badges/ab4a9208c9f0.svg) |
-| Tier 2 | silver | 2.0 - 3.0 | ![tier-2](../_static/badges/e87b59b6e36e.svg) |
-| Tier 3 | gold | 3.0 - 4.0 | ![tier-3](../_static/badges/5f8b9bb1d323.svg) |
-| Tier 4 | platinum | 4.0 - 5.0 | ![tier-4](../_static/badges/e7441c5cca3d.svg) |
+| Tier 1 | bronze | 1.0 - 2.0 | ![tier-1](../_static/tiers/t1.svg) |
+| Tier 2 | silver | 2.0 - 3.0 | ![tier-2](../_static/tiers/t2.svg) |
+| Tier 3 | gold | 3.0 - 4.0 | ![tier-3](../_static/tiers/t3.svg) |
+| Tier 4 | platinum | 4.0 - 5.0 | ![tier-4](../_static/tiers/t4.svg) |
 
 A plugin at **Tier 4** is considered production-grade. We
 recommend Tier 3+ for any plugin that ships in a CI environment.
