@@ -58,7 +58,8 @@ project-excludes = [
     "build/**",
     "dist/**",
     "__pycache__/**",
-    "tests/**"
+    "tests/**",
+    "docs/conf.py"
 ]
 
 [tool.mypy]
