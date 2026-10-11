@@ -59,6 +59,7 @@ project-excludes = [
     "dist/**",
     "__pycache__/**",
     "tests/**",
+    "scripts/**",
     "docs/conf.py"
 ]
 
@@ -70,7 +71,8 @@ exclude = [
     "build/",
     "dist/",
     "__pycache__/",
-    "tests/"
+    "tests/",
+    "scripts/"
 ]
 
 mypy_path = ["."]
