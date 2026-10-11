@@ -58,6 +58,11 @@ class DemoPlugin(Plugin):
             ctx.reporter.info(
                 f"[demo_plugin] session ended; env_dir = {env_dir}"
             )
+
+    def _on_session_start(self, ctx) -> None:
+        # SESSION_START fires after option resolution and interpreter
+        # discovery, but before the destination lock is acquired.
+        ctx.reporter.info("hello from demo_plugin")
 ```
 
 Three rules of thumb:
@@ -97,14 +102,6 @@ demo_plugin = "tn_venv_demo_plugin:DemoPlugin"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-```
-
-The key (`demo_plugin`) is the entry-point name. It shows up in the
-"source" column of `tn-venv --list-plugins`:
-
-```text
-demo_plugin         hooks: session_end, session_start
-                    source: entry-point: demo_plugin=tn_venv_demo_plugin:DemoPlugin
 ```
 
 The key (`demo_plugin`) is the entry-point name. It shows up in the
