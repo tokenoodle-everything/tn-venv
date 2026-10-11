@@ -115,7 +115,7 @@ URL. The canonical form is:
 ![Documentation 5/5](../_static/badges/875446cd1469.svg)
 ![Adoption 4/5](../_static/badges/0b36c57e2902.svg)
 ![Tier platinum](../_static/badges/f33246a09b87.svg)
-![Official](../_static/badges/065e320e9605.svg)
+![Official](../_static/OfficialAuthorized.svg)
 ```
 
 The score (`4`/`5`) maps to a colour: `1`-`2` -> red, `3` -> yellow,

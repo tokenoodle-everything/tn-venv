@@ -140,7 +140,7 @@ A typical plugin README badge block looks like this:
 ![Documentation 5/5](../_static/badges/875446cd1469.svg)
 ![Adoption 4/5](../_static/badges/0b36c57e2902.svg)
 ![Tier platinum](../_static/badges/f33246a09b87.svg)
-![Official Authorized](../_static/badges/065e320e9605.svg)
+![Official Authorized](../_static/OfficialAuthorized.svg)
 ```
 
 The exact badge URLs for each row in the registry are listed on
