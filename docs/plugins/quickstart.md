@@ -92,7 +92,7 @@ requires-python = ">=3.11"
 # (see tn_venv.plugins.PLUGIN_ENTRY_POINT). The value on the right
 # is the dotted path to your class — same form as a normal
 # ``module:Class`` Python import target.
-[project.entry-points.tn_venv.plugins]
+[project.entry-points."tn_venv.plugins"]
 demo_plugin = "tn_venv_demo_plugin:DemoPlugin"
 
 [tool.setuptools.packages.find]
