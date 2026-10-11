@@ -136,11 +136,11 @@ A typical plugin README badge block looks like this:
 
 ```markdown
 ![Maintenance 4/5](https://img.shields.io/badge/maintenance-4%2F5-brightgreen)
-![Stability 5/5](https://img.shields.io/badge/stability-5%2F5-brightgreen)
-![Documentation 5/5](https://img.shields.io/badge/documentation-5%2F5-brightgreen)
-![Adoption 4/5](https://img.shields.io/badge/adoption-4%2F5-brightgreen)
-![Tier platinum](https://img.shields.io/badge/tier-platinum-E5E4E2)
-![Official Authorized](https://img.shields.io/badge/official%20authorized-C0C0C0)
+![Stability 5/5](../_static/badges/a786e34a0be2.svg)
+![Documentation 5/5](../_static/badges/875446cd1469.svg)
+![Adoption 4/5](../_static/badges/0b36c57e2902.svg)
+![Tier platinum](../_static/badges/f33246a09b87.svg)
+![Official Authorized](../_static/badges/065e320e9605.svg)
 ```
 
 The exact badge URLs for each row in the registry are listed on

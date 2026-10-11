@@ -32,10 +32,10 @@ The four ratings are averaged and mapped to a tier:
 
 | Tier | Color | Average score | Badge |
 |---|---|---|---|
-| Tier 1 | bronze | 1.0 - 2.0 | ![tier-1](https://img.shields.io/badge/tier-1-bronze-C68863) |
-| Tier 2 | silver | 2.0 - 3.0 | ![tier-2](https://img.shields.io/badge/tier-2-silver-C0C0C0) |
-| Tier 3 | gold | 3.0 - 4.0 | ![tier-3](https://img.shields.io/badge/tier-3-gold-D4AF37) |
-| Tier 4 | platinum | 4.0 - 5.0 | ![tier-4](https://img.shields.io/badge/tier-4-platinum-E5E4E2) |
+| Tier 1 | bronze | 1.0 - 2.0 | ![tier-1](../_static/badges/ab4a9208c9f0.svg) |
+| Tier 2 | silver | 2.0 - 3.0 | ![tier-2](../_static/badges/e87b59b6e36e.svg) |
+| Tier 3 | gold | 3.0 - 4.0 | ![tier-3](../_static/badges/5f8b9bb1d323.svg) |
+| Tier 4 | platinum | 4.0 - 5.0 | ![tier-4](../_static/badges/e7441c5cca3d.svg) |
 
 A plugin at **Tier 4** is considered production-grade. We
 recommend Tier 3+ for any plugin that ships in a CI environment.
@@ -111,11 +111,11 @@ URL. The canonical form is:
 
 ```markdown
 ![Maintenance 4/5](https://img.shields.io/badge/maintenance-4%2F5-brightgreen)
-![Stability 5/5](https://img.shields.io/badge/stability-5%2F5-brightgreen)
-![Documentation 5/5](https://img.shields.io/badge/documentation-5%2F5-brightgreen)
-![Adoption 4/5](https://img.shields.io/badge/adoption-4%2F5-brightgreen)
-![Tier platinum](https://img.shields.io/badge/tier-platinum-E5E4E2)
-![Official](https://img.shields.io/badge/official%20authorized-C0C0C0)
+![Stability 5/5](../_static/badges/a786e34a0be2.svg)
+![Documentation 5/5](../_static/badges/875446cd1469.svg)
+![Adoption 4/5](../_static/badges/0b36c57e2902.svg)
+![Tier platinum](../_static/badges/f33246a09b87.svg)
+![Official](../_static/badges/065e320e9605.svg)
 ```
 
 The score (`4`/`5`) maps to a colour: `1`-`2` -> red, `3` -> yellow,
