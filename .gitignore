@@ -6,6 +6,8 @@ __pycache__/
 dist/
 tn_venv.egg-info/
 
+*.swp
+
 # docs
 docs/_build/
 docs/_build_test
