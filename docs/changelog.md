@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-10-16
+
 ### Added
 - `tn-venv --list-plugins` flag. Loads every plugin via the same
   discovery path as `run_session` (built-ins + entry points +
@@ -75,7 +77,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   literal `<code>~tn_venv.…</code>` (with the leading tilde) and
   provided no linkability.
 
-## Docs
+### Docs
 
 - Moved the full plugin reference from a single page into a new
   `docs/plugins/` directory. `docs/guide/plugins.md` is now a
@@ -124,7 +126,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   renamed `help-epilog-hook` to `help-epilog` to match the
   labelled section anchor.
 
-## [1.0.0] — 2026-10-05 — 2026-10-05
+## [1.0.0] — 2026-10-05
 
 ### Added
 - Plugin system under `tn_venv.plugins`: a `Plugin` base class, a
