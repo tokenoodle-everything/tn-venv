@@ -6,6 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Add `.vscode/launch.json`.
+
 ## [1.1.0] — 2026-10-16
 
 ### Added
