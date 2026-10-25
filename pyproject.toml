@@ -38,7 +38,7 @@ tn_venv = "tn_venv.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-exclude = ["tests*"]
+exclude = ["tests*", "docs*", "scripts*"]
 
 [tool.setuptools.package-data]
 tn_venv = ["py.typed"]

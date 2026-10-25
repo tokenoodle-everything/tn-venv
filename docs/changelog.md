@@ -9,6 +9,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - Add `.vscode/launch.json`.
 
+### Fixed
+- Add `docs*` and `scripts*` to exclude list in `[tool.setuptools.packages.find]` exclude pattern.
+
 ## [1.1.0] — 2026-10-16
 
 ### Added
