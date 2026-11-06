@@ -15,6 +15,7 @@ import time
 import urllib.error
 import urllib.request
 
+__version__ = "1.0.0"
 _USER_AGENT = (
     "Mozilla/5.0 (Sphinx; tn-venv-docs) "
     "AppleWebKit/537.36 (KHTML, like Gecko)"
