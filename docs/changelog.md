@@ -9,6 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - Add `.vscode/launch.json`.
 - Add `__version__` variable in `scripts/fetch_shields_badges.py`.
+- Add `tn-venv-create-activate` into the **Official Authorized** field in `docs/plugins/community.md`.
 
 ### Fixed
 - Add `docs*` and `scripts*` to exclude list in `[tool.setuptools.packages.find]` exclude pattern.

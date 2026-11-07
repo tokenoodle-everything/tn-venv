@@ -61,6 +61,7 @@ an issue instead and we'll review and grant.
 | Plugin | Status |
 |---|---|
 | `tn-venv-gui` | Official Authorized |
+| `tn-venv-create-activate` | Official Authorized |
 
 ## Registry
 
