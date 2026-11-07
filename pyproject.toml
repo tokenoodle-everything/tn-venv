@@ -60,7 +60,7 @@ project-excludes = [
     "__pycache__/**",
     "tests/**",
     "scripts/**",
-    "docs/conf.py"
+    "docs/**"
 ]
 
 [tool.mypy]
@@ -72,7 +72,8 @@ exclude = [
     "dist/",
     "__pycache__/",
     "tests/",
-    "scripts/"
+    "scripts/",
+    "docs/",
 ]
 
 mypy_path = ["."]
