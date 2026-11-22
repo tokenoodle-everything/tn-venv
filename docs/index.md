@@ -1,4 +1,4 @@
-# <img src="logo.png" style="width:32px;vertical-align:middle;"> tn-venv
+# <img src="_static/logo.png" style="width:32px;vertical-align:middle;"> tn-venv
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W6X42B1NF9)
 
