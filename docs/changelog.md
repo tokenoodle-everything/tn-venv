@@ -13,6 +13,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - Changed donate link to `https://ko-fi.com/aiwonderland_github` in `README.md`, `docs/index.md`.
+- `SECURITY.md` now directs vulnerability reports to GitHub Security
+  Advisories (private vulnerability reporting) as the primary channel,
+  with `security@tokenoodle.com` as an alternative, and notes that the
+  advisory is published publicly once a fix is released.
 
 ### Fixed
 - Add `docs*` and `scripts*` to exclude list in `[tool.setuptools.packages.find]` exclude pattern.
