@@ -44,6 +44,9 @@ myst_heading_anchors = 4
 
 nitpicky = False
 
+html_logo = "_static/logo.png"
+html_favicon = "_static/logo.png"
+
 # Set a real-browser User-Agent + retry + timeout so shields.io (and
 # other image hosts that gate on UA) return 200 to Sphinx's image
 # downloader. The default `Python-urllib/3.x` UA is blocked by
