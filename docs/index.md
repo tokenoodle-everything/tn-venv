@@ -1,6 +1,6 @@
 # tn-venv
 
-[![PayPal](_static/PayPalDonate.svg)](https://paypal.me/tokenoodle)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W6X42B1NF9)
 
 **Create Python virtual environments with one command — batteries included.**
 

@@ -11,8 +11,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add `__version__` variable in `scripts/fetch_shields_badges.py`.
 - Add `tn-venv-create-activate` into the **Official Authorized** field in `docs/plugins/community.md`.
 
+### Changed
+- Changed donate link to `https://ko-fi.com/aiwonderland_github` in `README.md`, `docs/index.md`.
+
 ### Fixed
 - Add `docs*` and `scripts*` to exclude list in `[tool.setuptools.packages.find]` exclude pattern.
+
+### Removed
+- Removed `docs/_static/PayPalDonate.svg`.
 
 ## [1.1.0] — 2026-10-16
 
