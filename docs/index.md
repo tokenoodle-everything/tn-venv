@@ -1,6 +1,7 @@
 # <img src="_static/logo.png" style="width:32px;vertical-align:middle;"> tn-venv
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W6X42B1NF9)
+[![Discord](https://img.shields.io/badge/Discord-7289da?logo=discord&logoColor=white)](https://discord.gg/F8yYqkBts)
 
 **Create Python virtual environments with one command — batteries included.**
 

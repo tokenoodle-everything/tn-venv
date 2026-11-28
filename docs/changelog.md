@@ -11,6 +11,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add `__version__` variable in `scripts/fetch_shields_badges.py`.
 - Add `tn-venv-create-activate` into the **Official Authorized** field in `docs/plugins/community.md`.
 - Add main logo `logo.png`.
+- Add Discord Server link in `README.md`, `docs/index.md`.
 
 ### Changed
 - Changed donate link to `https://ko-fi.com/aiwonderland_github` in `README.md`, `docs/index.md`.
